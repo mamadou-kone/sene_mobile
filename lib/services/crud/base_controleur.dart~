@@ -1,0 +1,24 @@
+import 'dart:io';
+
+abstract class BaseController<T> {
+  final BaseService _service;
+
+  BaseController(this._service);
+
+  Future<void> addEntity(T entity, File? image, String endpoint) async {
+    await _service.create(endpoint, entity.toJson(), image: image);
+  }
+
+  Future<List<T>> getEntities(String endpoint) async {
+    final data = await _service.read(endpoint);
+    return (data as List).map((item) => T.fromJson(item)).toList();
+  }
+
+  Future<void> updateEntity(String id, T entity, String endpoint) async {
+    await _service.update('$endpoint/$id', entity.toJson());
+  }
+
+  Future<void> deleteEntity(String id, String endpoint) async {
+    await _service.delete('$endpoint/$id');
+  }
+}
