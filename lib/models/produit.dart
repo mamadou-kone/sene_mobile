@@ -1,33 +1,33 @@
 import 'package:sene_mobile/models/agriculteur.dart';
 
-class Projet {
+class Produit {
   final int? id; // Utiliser int si l'ID est un entier
-  final String titre;
+  final String nom;
   final String description;
-  final double montantNecessaire;
-  final double? montantCollecte;
+  final double prix;
+  final double? quantite;
   final bool statut;
   final String? image; // Peut être une chaîne base64 ou une URL
   final Map<String, dynamic> agriculteur; // ID de l'agriculteur
 
-  Projet({
+  Produit({
     this.id,
-    required this.titre,
+    required this.nom,
     required this.description,
-    required this.montantNecessaire,
-    this.montantCollecte,
+    required this.prix,
+    this.quantite,
     required this.statut,
     this.image,
     required this.agriculteur,
   });
 
-  factory Projet.fromJson(Map<String, dynamic> json) {
-    return Projet(
+  factory Produit.fromJson(Map<String, dynamic> json) {
+    return Produit(
       id: json['id'] != null ? json['id'] as int : null,
-      titre: json['titre'] ?? '',
+      nom: json['nom'] ?? '',
       description: json['description'] ?? '',
-      montantNecessaire: (json['montantNecessaire'] as num?)?.toDouble() ?? 0.0,
-      montantCollecte: (json['montantCollecte'] as num?)?.toDouble(),
+      prix: (json['prix'] as num?)?.toDouble() ?? 0.0,
+      quantite: (json['quantite'] as num?)?.toDouble(),
       statut: json['statut'] ?? false,
       image: json['image'] is String ? json['image'] : null,
       agriculteur: json['agriculteur'] != null ? json['agriculteur'] : {},
@@ -37,10 +37,10 @@ class Projet {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'titre': titre,
+      'nom': nom,
       'description': description,
-      'montantNecessaire': montantNecessaire,
-      'montantCollecte': montantCollecte,
+      'prix': prix,
+      'quantite': quantite,
       'statut': statut,
       'image': image,
       'agriculteur': agriculteur,

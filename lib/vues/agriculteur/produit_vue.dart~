@@ -6,7 +6,6 @@ import '../../controleur/produit_controleur.dart'; // Contrôleur de produit
 import '../../models/produit.dart'; // Modèle de produit
 import '../../services/produit_service.dart';
 import 'ajout_produit.dart';
-import 'detail_produit.dart';
 
 class ProduitPage extends StatefulWidget {
   const ProduitPage({Key? key}) : super(key: key);

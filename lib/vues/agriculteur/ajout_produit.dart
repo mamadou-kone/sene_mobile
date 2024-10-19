@@ -1,25 +1,26 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sene_mobile/couleur.dart'; // Assurez-vous que ce chemin est correct
-import '../../models/client.dart'; // Assurez-vous d'avoir le modèle Client
-import '../../controleur/client_controleur.dart'; // Assurez-vous d'avoir le contrôleur ClientController
+import '../../couleur.dart';
+import '../../models/produit.dart'; // Modèle produit
+import '../../services/auth_controleur.dart'; // Contrôleur d'authentification
+import '../../services/produit_service.dart'; // Service produit
 
-class ClientForm extends StatefulWidget {
+class ProduitForm extends StatefulWidget {
   @override
-  _ClientFormState createState() => _ClientFormState();
+  _ProduitFormState createState() => _ProduitFormState();
 }
 
-class _ClientFormState extends State<ClientForm> {
+class _ProduitFormState extends State<ProduitForm> {
+  // Utilisation du singleton AuthController
+  final authController = AuthController.instance;
+  final ProduitService produitService = ProduitService();
   final _formKey = GlobalKey<FormState>();
-  final ClientController _controller = ClientController();
 
-  String email = '';
   String nom = '';
-  String prenom = '';
-  String address = '';
-  String tel = '';
-  String password = '';
+  String description = '';
+  double prix = 0.0;
+  double? quantite;
   File? image;
 
   Future<void> _pickImage() async {
@@ -38,22 +39,31 @@ class _ClientFormState extends State<ClientForm> {
     if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState?.save();
       try {
-        // Générer un ID unique (ici basé sur la date/heure, mais tu peux utiliser un UUID)
-        int id = DateTime.now().millisecondsSinceEpoch;
+        // Vérification que l'utilisateur est authentifié
+        if (authController.currentUser == null) {
+          throw Exception('Utilisateur non authentifié');
+        }
 
-        Client client = Client(
-          id: id, // Inclure l'identifiant
-          email: email,
+        // Récupération de l'ID de l'agriculteur à partir des données de l'utilisateur connecté
+        String agriculteurId = authController.currentUser!['userId'];
+        print("ID de l'agriculteur: $agriculteurId");
+
+        // Création d'un objet Produit
+        Produit produit = Produit(
           nom: nom,
-          prenom: prenom,
-          address: address,
-          tel: tel,
-          password: password,
+          description: description,
+          prix: prix,
+          quantite: quantite,
+          statut: true,
+          agriculteur: {
+            'id': agriculteurId,
+          }, // Utilisation de l'ID de l'agriculteur
         );
 
-        await _controller.addClient(client, image);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Client créé avec succès !')));
+        // Appel au service pour créer le produit
+        await produitService.create('produit', produit.toJson(), image: image);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Produit créé avec succès !')));
       } catch (e) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('Erreur : $e')));
@@ -65,7 +75,7 @@ class _ClientFormState extends State<ClientForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Créer un Client'),
+        title: Text('Créer un Produit'),
         backgroundColor: Couleur.primary,
         foregroundColor: Colors.white,
       ),
@@ -76,36 +86,29 @@ class _ClientFormState extends State<ClientForm> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Informations du Client',
-                style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    fontStyle: FontStyle.italic,
-                    color: Couleur.primary),
-              ),
+              Text('Informations du Produit',
+                  style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Couleur.primary)),
               SizedBox(height: 20),
-              _buildTextField('Email', (value) {
-                if (value?.isEmpty ?? true) return 'Veuillez entrer un email';
-              }, (value) => email = value ?? ''),
               _buildTextField('Nom', (value) {
                 if (value?.isEmpty ?? true) return 'Veuillez entrer un nom';
               }, (value) => nom = value ?? ''),
-              _buildTextField('Prénom', (value) {
-                if (value?.isEmpty ?? true) return 'Veuillez entrer un prénom';
-              }, (value) => prenom = value ?? ''),
-              _buildTextField('Adresse', (value) {
+              _buildTextField('Description', (value) {
                 if (value?.isEmpty ?? true)
-                  return 'Veuillez entrer une adresse';
-              }, (value) => address = value ?? ''),
-              _buildTextField('Téléphone', (value) {
-                if (value?.isEmpty ?? true)
-                  return 'Veuillez entrer un numéro de téléphone';
-              }, (value) => tel = value ?? ''),
-              _buildTextField('Mot de passe', (value) {
-                if (value?.isEmpty ?? true)
-                  return 'Veuillez entrer un mot de passe';
-              }, (value) => password = value ?? '', obscureText: true),
+                  return 'Veuillez entrer une description';
+              }, (value) => description = value ?? ''),
+              _buildTextField('Prix', (value) {
+                if (value?.isEmpty ?? true) return 'Veuillez entrer un prix';
+                if (double.tryParse(value!) == null)
+                  return 'Veuillez entrer un nombre valide';
+              }, (value) {
+                prix = double.tryParse(value!) ?? 0.0;
+              }),
+              _buildTextField('Quantité (optionnel)', null, (value) {
+                quantite = double.tryParse(value ?? '');
+              }, isOptional: true),
               SizedBox(height: 20),
               GestureDetector(
                 onTap: _pickImage,
@@ -135,7 +138,7 @@ class _ClientFormState extends State<ClientForm> {
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                     textStyle: TextStyle(fontSize: 18),
                   ),
-                  child: Text('Créer Client'),
+                  child: Text('Créer Produit'),
                 ),
               ),
             ],
@@ -147,7 +150,7 @@ class _ClientFormState extends State<ClientForm> {
 
   Widget _buildTextField(String label, String? Function(String?)? validator,
       Function(String?)? onSaved,
-      {bool obscureText = false}) {
+      {bool isOptional = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: TextFormField(
@@ -157,12 +160,12 @@ class _ClientFormState extends State<ClientForm> {
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Couleur.primary, width: 2.0),
           ),
-          contentPadding:
-              EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
         ),
         validator: validator,
         onSaved: onSaved,
-        obscureText: obscureText,
+        keyboardType: label == 'Prix' || label == 'Quantité'
+            ? TextInputType.number
+            : TextInputType.text,
       ),
     );
   }

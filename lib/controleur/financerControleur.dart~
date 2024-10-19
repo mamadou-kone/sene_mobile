@@ -1,0 +1,10 @@
+import '../../models/investissement.dart';
+import '../models/investisseur.dart';
+import '../models/projet.dart';
+import '../services/financeService.dart';
+
+class InvestissementController {
+  final InvestissementService _service;
+
+  InvestissementController(this._service);
+}

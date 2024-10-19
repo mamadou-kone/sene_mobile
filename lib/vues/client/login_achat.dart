@@ -153,7 +153,7 @@ class LoginAcheter extends StatelessWidget {
                                   // Redirection basée sur le rôle
                                   if (role == 'Client') {
                                     Navigator.pushReplacementNamed(
-                                        context, '/homeAchater');
+                                        context, '/homeAchat');
                                   } else {
                                     Navigator.pushReplacementNamed(
                                         context, '/access_denied');

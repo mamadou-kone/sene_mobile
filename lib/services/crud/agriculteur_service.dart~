@@ -35,7 +35,7 @@ class AgriculteurService {
   }
 
   Future<void> updateWithImage(
-      String endpoint, Map<String, dynamic> data,  imageBytes) async {
+      String endpoint, Map<String, dynamic> data, imageBytes) async {
     // Modification ici
     var request =
         http.MultipartRequest('PUT', Uri.parse('${Config.baseUrl}/$endpoint'));
@@ -71,6 +71,7 @@ class AgriculteurService {
   Future<dynamic> _handleResponse(http.Response response) async {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return jsonDecode(response.body);
+      print(response.body);
     } else {
       throw Exception(
           'Erreur lors de la communication avec l\'API: ${response.statusCode}');

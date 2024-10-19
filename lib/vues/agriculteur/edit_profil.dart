@@ -88,7 +88,9 @@ class _AgriculteurEditFormState extends State<AgriculteurEditForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Modifier Agriculteur'),
+        iconTheme: IconThemeData(color: Colors.white),
+        title:
+            Text('Modifier Agriculteur', style: TextStyle(color: Colors.white)),
         backgroundColor: Couleur.primary,
       ),
       body: SingleChildScrollView(
@@ -151,8 +153,17 @@ class _AgriculteurEditFormState extends State<AgriculteurEditForm> {
               SizedBox(height: 20),
               Center(
                 child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Couleur.primary,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    textStyle: TextStyle(fontSize: 18),
+                  ),
                   onPressed: _submit,
-                  child: Text('Mettre à jour'),
+                  child: Text(
+                    'Mettre à jour',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             ],

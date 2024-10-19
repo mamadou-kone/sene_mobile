@@ -16,6 +16,7 @@ class LoginIvestisseur extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
+        // Utilisation de SingleChildScrollView pour permettre le défilement
         child: Container(
           height: MediaQuery.of(context).size.height,
           child: Stack(
@@ -26,7 +27,6 @@ class LoginIvestisseur extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
               Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 10),
                   Expanded(
@@ -72,126 +72,130 @@ class LoginIvestisseur extends StatelessWidget {
                         ),
                       ),
                       padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 20),
-                          SizedBox(
-                            width: 250,
-                            height: 45,
-                            child: TextField(
-                              focusNode: usernameFocusNode,
-                              controller: usernameController,
-                              decoration: InputDecoration(
-                                labelText: 'Email',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                filled: true,
-                                fillColor: Couleur.primary,
-                                labelStyle: const TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          SizedBox(
-                            width: 250,
-                            height: 45,
-                            child: TextField(
-                              focusNode: passwordFocusNode,
-                              controller: passwordController,
-                              decoration: InputDecoration(
-                                labelText: 'Mot de passe',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                filled: true,
-                                fillColor: Couleur.primary,
-                                labelStyle: const TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                              obscureText: true,
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/forgot_password');
-                            },
-                            child: Text(
-                              'Mot de passe oublié ?',
-                              style: TextStyle(
-                                color: Couleur.primary,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 50),
-                          SizedBox(
-                            height: 45,
-                            width: 200,
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                User user = User(
-                                  username: usernameController.text,
-                                  password: passwordController.text,
-                                );
-                                var result = await authController.login(user);
-                                if (result['success']) {
-                                  String token = result['token'];
-                                  String role = result['role'];
-                                  // Stockez le token si nécessaire
-
-                                  // Redirection basée sur le rôle
-                                  if (role == 'Investisseur') {
-                                    Navigator.pushReplacementNamed(
-                                        context, '/homeInvestisseur');
-                                  } else {
-                                    Navigator.pushReplacementNamed(
-                                        context, '/access_denied');
-                                  }
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Échec de la connexion'),
-                                    ),
-                                  );
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Couleur.primary,
-                                  foregroundColor: Colors.white),
-                              child: const Text('Connexion'),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                      context, '/investisseurAjout');
-                                },
-                                child: Text(
-                                  'Créer un compte',
-                                  style: TextStyle(
-                                    color: Couleur.primary,
-                                    decoration: TextDecoration.underline,
+                      child: SingleChildScrollView(
+                        // Ajout du scroll ici pour éviter l'overflow
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 20),
+                            SizedBox(
+                              width: 250,
+                              height: 45,
+                              child: TextField(
+                                focusNode: usernameFocusNode,
+                                controller: usernameController,
+                                decoration: InputDecoration(
+                                  labelText: 'Email',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  filled: true,
+                                  fillColor: Couleur.primary,
+                                  labelStyle: const TextStyle(
+                                    color: Colors.white,
                                   ),
                                 ),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                ),
                               ),
-                            ],
-                          ),
-                        ],
+                            ),
+                            const SizedBox(height: 20),
+                            SizedBox(
+                              width: 250,
+                              height: 45,
+                              child: TextField(
+                                focusNode: passwordFocusNode,
+                                controller: passwordController,
+                                decoration: InputDecoration(
+                                  labelText: 'Mot de passe',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  filled: true,
+                                  fillColor: Couleur.primary,
+                                  labelStyle: const TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                obscureText: true,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pushNamed(
+                                    context, '/forgot_password');
+                              },
+                              child: Text(
+                                'Mot de passe oublié ?',
+                                style: TextStyle(
+                                  color: Couleur.primary,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 50),
+                            SizedBox(
+                              height: 45,
+                              width: 200,
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  User user = User(
+                                    username: usernameController.text,
+                                    password: passwordController.text,
+                                  );
+                                  var result = await authController.login(user);
+                                  if (result['success']) {
+                                    String token = result['token'];
+                                    String role = result['role'];
+                                    // Stockez le token si nécessaire
+
+                                    // Redirection basée sur le rôle
+                                    if (role == 'Investisseur') {
+                                      Navigator.pushReplacementNamed(
+                                          context, '/homeInvestisseur');
+                                    } else {
+                                      Navigator.pushReplacementNamed(
+                                          context, '/access_denied');
+                                    }
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Échec de la connexion'),
+                                      ),
+                                    );
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: Couleur.primary,
+                                    foregroundColor: Colors.white),
+                                child: const Text('Connexion'),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pushNamed(
+                                        context, '/investisseurAjout');
+                                  },
+                                  child: Text(
+                                    'Créer un compte',
+                                    style: TextStyle(
+                                      color: Couleur.primary,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

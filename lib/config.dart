@@ -1,6 +1,6 @@
 class Config {
-  static const String baseUrl =
-      'http://10.175.48.25:8080/api'; // Remplacez par votre URL
+  static const String baseUrl = 'https://sene-backend-1.onrender.com/api';
 
-  static const String authUrl = 'http://10.175.48.25:8080/auth/connexion';
+  static const String authUrl =
+      'https://sene-backend-1.onrender.com/auth/connexion';
 }

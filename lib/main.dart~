@@ -28,6 +28,7 @@ class MyApp extends StatelessWidget {
         '/homeInvestisseur': (context) => HomeInvestisseur(),
         '/access_denied': (context) => AccessDeniedPage(),
         '/loginVendre': (context) => LoginVendre(),
+        '/clientAjout': (context) => ClientForm(),
         '/loginAchat': (context) => LoginAcheter(),
         '/homeAchat': (context) => HomeAchat(),
         '/agriculteurAjout': (context) => AgriculteurForm(),
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
               userInfo: {},
             ),
         '/investisseurAjout': (context) => InvestisseurForm(),
+        '/clientAjout': (context) => ClientForm(),
         '/loginAchater': (context) => LoginAcheter(),
       },
     );

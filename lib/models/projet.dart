@@ -8,7 +8,7 @@ class Projet {
   final double? montantCollecte;
   final bool statut;
   final String? image; // Peut être une chaîne base64 ou une URL
-  final Map<String, dynamic> agriculteur; // ID de l'agriculteur
+  final Map<String, dynamic> agriculteur;
 
   Projet({
     this.id,

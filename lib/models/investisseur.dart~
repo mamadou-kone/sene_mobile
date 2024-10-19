@@ -1,20 +1,25 @@
-class Client {
-  final int id; // Champ id
+import 'dart:convert';
+import 'dart:typed_data';
+
+class Investisseur {
+  final int? id; // Champ id
   String email;
   String nom;
   String prenom;
   String address;
   String tel;
   String password;
+  Uint8List? image; // Champ pour l'image
 
-  Client({
-    required this.id,
+  Investisseur({
+    this.id,
     required this.email,
     required this.nom,
     required this.prenom,
     required this.address,
     required this.tel,
     required this.password,
+    this.image, // Initialiser l'image (facultatif)
   });
 
   Map<String, dynamic> toJson() {
@@ -26,11 +31,14 @@ class Client {
       'address': address,
       'tel': tel,
       'password': password,
+      'image': image != null
+          ? base64Encode(image!)
+          : null, // Convertir l'image en chaîne Base64
     };
   }
 
-  static Client fromJson(Map<String, dynamic> json) {
-    return Client(
+  static Investisseur fromJson(Map<String, dynamic> json) {
+    return Investisseur(
       id: json['id'],
       email: json['email'],
       nom: json['nom'],
@@ -38,12 +46,9 @@ class Client {
       address: json['address'],
       tel: json['tel'],
       password: json['password'],
+      image: json['image'] != null
+          ? base64Decode(json['image'])
+          : null, // Décoder l'image si elle existe
     );
-  }
-
-  static Map<String, dynamic> toIdJson(int id) {
-    return {
-      'id': id,
-    };
   }
 }

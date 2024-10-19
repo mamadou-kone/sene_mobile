@@ -20,7 +20,7 @@ class AuthController {
   // Fonction de login qui stocke le token et les informations de l'utilisateur
   Future<Map<String, dynamic>> login(User user) async {
     final response = await http.post(
-      Uri.parse('${Config.authUrl}'),
+      Uri.parse('${Config.baseUrl}/login'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(user.toJson()),
     );

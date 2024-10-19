@@ -1,4 +1,5 @@
 class Investisseur {
+  final int? id; // Champ id
   String email;
   String nom;
   String prenom;
@@ -7,6 +8,7 @@ class Investisseur {
   String password;
 
   Investisseur({
+    this.id,
     required this.email,
     required this.nom,
     required this.prenom,
@@ -17,6 +19,7 @@ class Investisseur {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'email': email,
       'nom': nom,
       'prenom': prenom,
@@ -28,6 +31,7 @@ class Investisseur {
 
   static Investisseur fromJson(Map<String, dynamic> json) {
     return Investisseur(
+      id: json['id'],
       email: json['email'],
       nom: json['nom'],
       prenom: json['prenom'],
