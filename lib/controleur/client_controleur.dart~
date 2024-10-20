@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 
 class ClientController {
   final ClientService _crudService;
-
+  static String? panierId;
   ClientController() : _crudService = ClientService();
 
   Future<void> addClient(Client client, File? image) async {
@@ -58,16 +58,16 @@ class ClientController {
   }
 
   // Méthode pour récupérer l'ID du panier du client
-  Future<String> fetchPanierId(String userId) async {
+  static Future<String> fetchPanierId(String userId) async {
     final response =
         await http.get(Uri.parse('${Config.baseUrl}/panier/client/$userId'));
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      // La réponse contient seulement l'ID du panier sous forme de chaîne
-      String panierId = response.body;
+      // Mise à jour de la variable statique avec l'ID du panier récupéré
+      panierId = response.body;
 
       print("Panier ID récupéré : $panierId");
-      return panierId; // Retourne directement l'ID en chaîne
+      return panierId!; // Retourne directement l'ID
     } else {
       throw Exception(
           'Erreur lors de la récupération de l\'ID du panier: ${response.statusCode}');

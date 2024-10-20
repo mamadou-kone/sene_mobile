@@ -40,10 +40,7 @@ class _PanierPageState extends State<PanierPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Mon Panier'),
-        automaticallyImplyLeading: false,
-      ),
+      appBar: AppBar(title: Text('Mon Panier'),automaticallyImplyLeading: false,),
       body: FutureBuilder<List<PanierProduit>>(
         future: panierProduitsFuture,
         builder: (context, snapshot) {

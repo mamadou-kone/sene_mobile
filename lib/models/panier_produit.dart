@@ -1,10 +1,10 @@
-import 'package:sene_mobile/models/produit.dart';
+import 'Produit.dart'; // Importer ton modèle de Produit
 
 class PanierProduit {
-  final int? id; // ID de l'association PanierProduit
-  final int panierId; // ID du panier
-  final Produit produit; // Détails du produit
-  final int quantite; // Quantité de ce produit dans le panier
+  final int? id;
+  final int panierId;
+  final Produit produit;
+  final int quantite;
 
   PanierProduit({
     this.id,
@@ -13,13 +13,23 @@ class PanierProduit {
     required this.quantite,
   });
 
+  // Méthode pour convertir un PanierProduit en JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'panier': {'id': panierId},
+      'produit': {'id': produit.id}, // Utiliser l'ID du produit
+      'quantite': quantite,
+    };
+  }
+
+  // Méthode pour créer un PanierProduit à partir de JSON
   factory PanierProduit.fromJson(Map<String, dynamic> json) {
     return PanierProduit(
-      id: json['id'], // ID de l'association PanierProduit
-      panierId: json['panier']['id'], // ID du panier
-      produit:
-          Produit.fromJson(json['produit']), // Utilisation du modèle Produit
-      quantite: json['quantite'] ?? 0, // Quantité
+      id: json['id'],
+      panierId: json['panier']['id'],
+      produit: Produit.fromJson(
+          json['produit']), // Utilisation de Produit.fromJson()
+      quantite: json['quantite'],
     );
   }
 }

@@ -43,22 +43,32 @@ class PanierController {
     }
   }
 
-  Future<void> addProduitToPanier(String userId, String produitId) async {
-    final url = '${Config.baseUrl}/panier/add-produit';
+  Future<void> addProduitToPanier(
+      String userId, String produitId, String panierId, int quantite) async {
+    final url = '${Config.baseUrl}/panier-produit';
 
     final response = await http.post(
       Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'userId': userId,
-        'produitId': produitId,
+        'produit': {
+          'id': produitId,
+        },
+        'panier': {
+          'id': panierId,
+          'client': {
+            'id': userId,
+          },
+        },
+        'quantite': quantite, // Ajoutez la quantité souhaitée
       }),
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       print('Produit ajouté au panier avec succès');
     } else {
-      throw Exception('Erreur lors de l\'ajout du produit au panier');
+      throw Exception(
+          'Erreur lors de l\'ajout du produit au panier : ${response.body}');
     }
   }
 }

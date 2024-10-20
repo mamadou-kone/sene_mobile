@@ -103,8 +103,7 @@ class _HomeAchatState extends State<HomeAchat> {
     if (panierId != null && panierId!.isNotEmpty) {
       try {
         // Remplacez 1 par la quantité désirée
-        await PanierController()
-            .addProduitToPanier(userIdP, produitId, panierId!, 1);
+        await PanierController().addProduitToPanier(userIdP, produitId, panierId!, 1);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Produit ajouté au panier!'),
@@ -232,9 +231,9 @@ class _HomeAchatState extends State<HomeAchat> {
                     children: [
                       produit.image != null
                           ? Image.memory(
-                              base64Decode(produit.image!),
-                              fit: BoxFit.cover,
-                            )
+                        base64Decode(produit.image!),
+                        fit: BoxFit.cover,
+                      )
                           : Container(color: Colors.grey),
                       Positioned(
                         bottom: 0,
@@ -380,9 +379,9 @@ class ProductCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   image: product.image != null
                       ? DecorationImage(
-                          image: MemoryImage(base64Decode(product.image!)),
-                          fit: BoxFit.cover,
-                        )
+                    image: MemoryImage(base64Decode(product.image!)),
+                    fit: BoxFit.cover,
+                  )
                       : null,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
                 ),

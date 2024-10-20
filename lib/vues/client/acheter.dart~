@@ -25,6 +25,11 @@ class _AcheterPageState extends State<AcheterPage> {
     });
 
     try {
+      await PanierController().addProduitToPanier(
+        authController.currentUser!['userId'], // ID de l'utilisateur
+        widget.produit.id.toString(),
+        // ID du produit
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Produit ajouté au panier avec succès !')),
       );
