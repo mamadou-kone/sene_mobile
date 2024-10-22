@@ -36,7 +36,7 @@ class _HomeAchatState extends State<HomeAchat> {
   @override
   void initState() {
     super.initState();
-    controller = ProduitController(ProduitService(), userIdP);
+    controller = ProduitController(ProduitService());
     _loadProduits();
     _fetchClientInfo();
     _fetchPanierId();
@@ -62,7 +62,7 @@ class _HomeAchatState extends State<HomeAchat> {
   }
 
   Future<void> _loadProduits() async {
-    await controller.loadProduit();
+    await controller.loadProduits();
     setState(() {
       produits = controller.getProduits();
       displayedProduits = produits;

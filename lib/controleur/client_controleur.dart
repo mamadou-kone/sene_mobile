@@ -35,7 +35,7 @@ class ClientController {
           'client/${id.toString()}', clientData, imageBytes);
     } else {
       // Sinon, mettre à jour sans image
-      await _crudService.update('investisseur/${id.toString()}', clientData);
+      await _crudService.update('client/${id.toString()}', clientData);
     }
   }
 

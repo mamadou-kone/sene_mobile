@@ -1,9 +1,11 @@
-import 'dart:convert'; // Pour utiliser base64Decode
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:sene_mobile/couleur.dart';
-import '../../controleur/produit_controleur.dart'; // Contrôleur de produit
-import '../../models/produit.dart'; // Modèle de produit
+import 'package:sene_mobile/vues/agriculteur/produit_forme.dart';
+import '../../controleur/produit_controleur.dart';
+import '../../models/produit.dart';
+import '../../services/auth_controleur.dart';
 import '../../services/produit_service.dart';
 import 'ajout_produit.dart';
 import 'detail_produit.dart';
@@ -17,22 +19,33 @@ class ProduitPage extends StatefulWidget {
 
 class _ProduitPageState extends State<ProduitPage> {
   late ProduitController controller;
-  String currentUserId = 'ID_UTILISATEUR_CONNECTE'; // Remplacez par l'ID réel
+  String currentUserId = AuthController.instance.userId ?? '';
   int selectedIndex = 0; // Indice de catégorie sélectionnée
+  List<Produit> produitsToDisplay = [];
 
   @override
   void initState() {
     super.initState();
-    controller = ProduitController(
-        ProduitService(), currentUserId); // Initialiser le contrôleur
-    controller.loadProduit(); // Charger les produits au démarrage
+    controller = ProduitController(ProduitService());
+    controller.loadProduits().then((_) {
+      setState(() {
+        produitsToDisplay = controller.getProduits();
+      });
+    });
+  }
+
+  void _loadMyProduits() {
+    controller.loadMyProduits().then((_) {
+      setState(() {
+        produitsToDisplay = controller.getMyProduits();
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
 
-    // Catégories de produits
     List<String> productCategories = ['Tous', 'Mes produits'];
 
     return Scaffold(
@@ -57,10 +70,7 @@ class _ProduitPageState extends State<ProduitPage> {
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.search,
-                      color: Colors.black54.withOpacity(.6),
-                    ),
+                    Icon(Icons.search, color: Colors.black54.withOpacity(.6)),
                     const Expanded(
                       child: TextField(
                         decoration: InputDecoration(
@@ -85,13 +95,11 @@ class _ProduitPageState extends State<ProduitPage> {
                     onTap: () {
                       setState(() {
                         selectedIndex = index;
-                        // Filtrer les produits selon la catégorie sélectionnée
-                        if (selectedIndex == 1) {
-                          controller
-                              .filterMyProduits(); // Filtrer pour "Mes produits"
+                        if (index == 1) {
+                          _loadMyProduits(); // Charger les produits de l'utilisateur
                         } else {
-                          controller
-                              .loadProduit(); // Recharger tous les produits
+                          produitsToDisplay = controller
+                              .getProduits(); // Afficher tous les produits
                         }
                       });
                     },
@@ -114,25 +122,16 @@ class _ProduitPageState extends State<ProduitPage> {
                 },
               ),
             ),
-            // Liste des produits
+            // Liste des produits ou message si vide
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               height: size.height * 0.7,
-              child: FutureBuilder(
-                future: controller.loadProduit(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Erreur : ${snapshot.error}'));
-                  } else {
-                    // Utiliser la bonne liste de produits
-                    List<Produit> produitsToDisplay = selectedIndex == 1
-                        ? controller
-                            .getMyProduits() // Produits de l'utilisateur connecté
-                        : controller.getProduits(); // Tous les produits
-
-                    return ListView.builder(
+              child: produitsToDisplay.isEmpty
+                  ? Center(
+                      child: Text('Aucun produit créé par vous',
+                          style:
+                              TextStyle(fontSize: 18, color: Colors.black54)))
+                  : ListView.builder(
                       itemCount: produitsToDisplay.length,
                       itemBuilder: (BuildContext context, int index) {
                         final produit = produitsToDisplay[index];
@@ -156,12 +155,11 @@ class _ProduitPageState extends State<ProduitPage> {
                               padding: const EdgeInsets.all(16.0),
                               child: Row(
                                 children: [
-                                  // Affichage de l'image
                                   produit.image != null
                                       ? Image.memory(
                                           base64Decode(produit.image!),
-                                          height: 100, // Hauteur de l'image
-                                          width: 100, // Largeur de l'image
+                                          height: 100,
+                                          width: 100,
                                           fit: BoxFit.cover,
                                         )
                                       : Container(
@@ -171,10 +169,7 @@ class _ProduitPageState extends State<ProduitPage> {
                                           child: const Center(
                                               child: Text('Pas d\'image')),
                                         ),
-                                  const SizedBox(
-                                      width:
-                                          16), // Espace entre l'image et le texte
-                                  // Informations du produit
+                                  const SizedBox(width: 16),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -211,27 +206,45 @@ class _ProduitPageState extends State<ProduitPage> {
                                       ],
                                     ),
                                   ),
+                                  // Bouton d'édition visible uniquement dans "Mes produits"
+                                  if (selectedIndex == 1)
+                                    IconButton(
+                                      icon: Icon(Icons.edit,
+                                          color: Couleur.primary),
+                                      onPressed: () {
+                                        // Naviguer vers la page d'édition du produit
+                                        Navigator.push(
+                                          context,
+                                          PageTransition(
+                                            child: FormulaireProduit(
+                                                produit:
+                                                    produit), // Passez le produit à modifier
+                                            type:
+                                                PageTransitionType.bottomToTop,
+                                          ),
+                                        ).then((_) {
+                                          // Recharger les produits après modification
+                                          _loadMyProduits();
+                                        });
+                                      },
+                                    ),
                                 ],
                               ),
                             ),
                           ),
                         );
                       },
-                    );
-                  }
-                },
-              ),
+                    ),
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Logique pour ajouter un nouveau produit
           Navigator.push(
             context,
             PageTransition(
-              child: ProduitForm(),
+              child: ProduitForm(), // Page pour ajouter un nouveau produit
               type: PageTransitionType.bottomToTop,
             ),
           );
