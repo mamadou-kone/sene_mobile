@@ -26,32 +26,36 @@ class _FinancierPageState extends State<FinancierPage> {
       setState(() {
         _isLoading = true;
       });
-
       final montant = double.tryParse(_montantController.text);
       if (montant != null) {
         try {
           final investissement = Investissement(
             montant: montant,
-            dateInvestissement:
-                DateTime.now().toIso8601String(), // Format de date
             investisseurId: authController.currentUser!['userId'].toString(),
             projetId: widget.projet.id.toString(),
           );
+
+          // Affichage des données dans le terminal
+          print('Données de l\'investissement :');
+          print('Montant: ${investissement.montant}');
+          print('Date d\'investissement: ${investissement.dateInvestissement}');
+          print('ID de l\'investisseur: ${investissement.investisseurId}');
+          print('ID du projet: ${investissement.projetId}');
 
           await InvestissementService().investir(investissement);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Investissement réussi !')),
           );
 
-          // Optionnel : Retour à la page précédente ou actualisation
+          // Retour à la page précédente
           Navigator.pop(context);
         } catch (error) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erreur lors de l\'investissement')),
+            SnackBar(
+                content: Text('Erreur lors de l\'investissement : $error')),
           );
         }
       }
-
       setState(() {
         _isLoading = false;
       });
@@ -101,7 +105,6 @@ class _FinancierPageState extends State<FinancierPage> {
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 20),
-
             // Formulaire d'investissement
             Form(
               key: _formKey,

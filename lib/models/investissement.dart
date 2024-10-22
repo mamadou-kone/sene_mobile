@@ -2,13 +2,13 @@ import 'investisseur.dart';
 
 class Investissement {
   final double montant;
-  final String dateInvestissement; // Format selon vos besoins
+  final String? dateInvestissement; // Format selon vos besoins
   final String investisseurId; // ID de l'investisseur
   final String projetId; // ID du projet
 
   Investissement({
     required this.montant,
-    required this.dateInvestissement,
+    this.dateInvestissement,
     required this.investisseurId,
     required this.projetId,
   });
@@ -17,8 +17,12 @@ class Investissement {
     return {
       'montant': montant,
       'dateInvestissement': dateInvestissement,
-      'investisseurId': investisseurId, // Utilise uniquement l'ID
-      'projetId': projetId,
+      'investisseur': {
+        'id': investisseurId,
+      },
+      'projet': {
+        'id': projetId,
+      }
     };
   }
 

@@ -12,8 +12,9 @@ class InvestissementService {
       },
       body: json.encode(investissement.toJson()),
     );
-
+    print("fffffffffffffffff" + response.body);
     if (response.statusCode != 200) {
+      print("tttttttt" + response.body);
       throw Exception('Erreur lors de l\'investissement');
     }
   }
@@ -25,7 +26,6 @@ class InvestissementService {
         'Content-Type': 'application/json',
       },
     );
-
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = json.decode(response.body);
       return jsonResponse

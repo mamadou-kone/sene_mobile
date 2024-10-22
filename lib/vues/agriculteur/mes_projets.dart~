@@ -6,7 +6,7 @@ import 'package:sene_mobile/models/projet.dart';
 import 'package:sene_mobile/services/projet_service.dart';
 
 import '../../models/investissement.dart';
-import '../../services/ivestissement_service.dart';
+import '../../services/investissement_service.dart';
 import '../../services/auth_controleur.dart';
 
 class MesProjets extends StatelessWidget {
@@ -18,9 +18,7 @@ class MesProjets extends StatelessWidget {
 
     // Filtrer les investissements par ID de l'investisseur connecté
     final userId = authController.currentUser!['userId'].toString();
-    return projets
-        .where((projet) => projet.agriculteur == userId)
-        .toList();
+    return projets.where((projet) => projet.agriculteur == userId).toList();
   }
 
   @override
@@ -29,7 +27,7 @@ class MesProjets extends StatelessWidget {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title:
-        Text('Mes Investissements', style: TextStyle(color: Colors.white)),
+            Text('Mes Investissements', style: TextStyle(color: Colors.white)),
         backgroundColor: Couleur.primary, // Changer la couleur de l'AppBar
       ),
       body: FutureBuilder<List<Projet>>(

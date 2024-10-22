@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:sene_mobile/couleur.dart';
 
 import '../../models/investissement.dart';
-import '../../services/ivestissement_service.dart';
+import '../../services/investissement_service.dart';
 import '../../services/auth_controleur.dart';
 
 class MesInvestissement extends StatelessWidget {

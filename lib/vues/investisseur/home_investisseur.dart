@@ -4,7 +4,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:sene_mobile/couleur.dart';
 import 'package:sene_mobile/vues/investisseur/profil_investisseur.dart';
-
 import '../../controleur/projet_controleur.dart';
 import '../../models/projet.dart';
 import '../../services/projet_service.dart';
@@ -32,9 +31,17 @@ class _HomeInvestisseurState extends State<HomeInvestisseur> {
 
   Future<void> _loadProjects() async {
     await controller.loadProjets();
-    setState(() {
-      projects = controller.getProjets();
-    });
+    if (mounted) {
+      setState(() {
+        projects = controller.getProjets();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    // Libère ici d'autres ressources si nécessaire (par ex: timers, streams)
+    super.dispose();
   }
 
   @override
@@ -50,7 +57,7 @@ class _HomeInvestisseurState extends State<HomeInvestisseur> {
           IconButton(
             icon: Icon(Icons.search),
             onPressed: () {
-// Action de recherche ici
+              // Action de recherche ici
             },
           ),
         ],
@@ -128,7 +135,15 @@ class _HomeInvestisseurState extends State<HomeInvestisseur> {
                               base64Decode(project.image!),
                               fit: BoxFit.cover,
                             )
-                          : Container(),
+                          : Container(
+                              color: Colors.grey, // Image par défaut
+                              child: Center(
+                                child: Text(
+                                  'Aucune image disponible',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
                       Positioned(
                         bottom: 0,
                         left: 0,
@@ -260,7 +275,7 @@ class _HomeInvestisseurState extends State<HomeInvestisseur> {
             ),
             const GButton(
               icon: Icons.message,
-              text: 'Message',
+              text: 'Messages',
             ),
             const GButton(
               icon: Icons.person,
