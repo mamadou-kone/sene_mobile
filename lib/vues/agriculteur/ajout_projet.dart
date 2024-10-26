@@ -13,7 +13,6 @@ class ProjetForm extends StatefulWidget {
 }
 
 class _ProjetFormState extends State<ProjetForm> {
-  // Utilisation du singleton AuthController
   final authController = AuthController.instance;
   final ProjetService projetService = ProjetService();
   final _formKey = GlobalKey<FormState>();
@@ -39,33 +38,28 @@ class _ProjetFormState extends State<ProjetForm> {
     if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState?.save();
       try {
-        // Vérification que l'utilisateur est authentifié
         if (authController.currentUser == null) {
           throw Exception('Utilisateur non authentifié');
         }
 
-        // Récupération de l'ID de l'agriculteur à partir des données de l'utilisateur connecté
         String agriculteurId = authController.currentUser!['userId'];
-        print("ID de l'agriculteur: $agriculteurId");
 
-        // Création d'un objet Projet
         Projet projet = Projet(
           titre: titre,
           description: description,
           montantNecessaire: montantNecessaire,
           statut: true,
-          agriculteur: {
-            'id': agriculteurId,
-          }, // Utilisation de l'ID de l'agriculteur
+          agriculteur: {'id': agriculteurId},
         );
 
-        // Appel au service pour créer le projet
         await projetService.create('projet', projet.toJson(), image: image);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Projet créé avec succès !')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Projet créé avec succès !')),
+        );
       } catch (e) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Erreur : $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur : $e')),
+        );
       }
     }
   }
@@ -74,94 +68,181 @@ class _ProjetFormState extends State<ProjetForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Créer un Projet'),
+        iconTheme: IconThemeData(color: Colors.white),
+        title: Text('Créer un Projet', style: TextStyle(color: Colors.white)),
         backgroundColor: Couleur.primary,
-        foregroundColor: Colors.white,
+        elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Informations du Projet',
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Couleur.primary)),
-              SizedBox(height: 20),
-              _buildTextField('Titre', (value) {
-                if (value?.isEmpty ?? true) return 'Veuillez entrer un titre';
-              }, (value) => titre = value ?? ''),
-              _buildTextField('Description', (value) {
-                if (value?.isEmpty ?? true)
-                  return 'Veuillez entrer une description';
-              }, (value) => description = value ?? ''),
-              _buildTextField('Montant Nécessaire', (value) {
-                if (value?.isEmpty ?? true) return 'Veuillez entrer un montant';
-                if (double.tryParse(value!) == null)
-                  return 'Veuillez entrer un nombre valide';
-              }, (value) {
-                montantNecessaire = double.tryParse(value!) ?? 0.0;
-              }),
-              SizedBox(height: 20),
-              GestureDetector(
-                onTap: _pickImage,
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.grey[300],
-                  child: image == null
-                      ? Icon(Icons.add_a_photo,
-                          size: 50, color: Couleur.primary)
-                      : ClipOval(
-                          child: Image.file(
-                            image!,
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.cover,
-                          ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Couleur.primary.withOpacity(0.1), Colors.white],
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 10,
+                          offset: Offset(0, 5),
                         ),
+                      ],
+                    ),
+                    child: image == null
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.add_a_photo,
+                                  size: 40, color: Couleur.primary),
+                              SizedBox(height: 5),
+                              Text(
+                                'Ajouter une photo',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Couleur.primary,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          )
+                        : ClipOval(
+                            child: Image.file(
+                              image!,
+                              fit: BoxFit.cover,
+                              width: 120,
+                              height: 120,
+                            ),
+                          ),
+                  ),
                 ),
-              ),
-              SizedBox(height: 20),
-              Center(
-                child: ElevatedButton(
+                SizedBox(height: 30),
+                Card(
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Column(
+                      children: [
+                        _buildTextField(
+                          'Titre',
+                          (value) {
+                            if (value?.isEmpty ?? true)
+                              return 'Veuillez entrer un titre';
+                            return null;
+                          },
+                          (value) => titre = value ?? '',
+                        ),
+                        SizedBox(height: 15),
+                        _buildTextField(
+                          'Description',
+                          (value) {
+                            if (value?.isEmpty ?? true)
+                              return 'Veuillez entrer une description';
+                            return null;
+                          },
+                          (value) => description = value ?? '',
+                          maxLines: 3,
+                        ),
+                        SizedBox(height: 15),
+                        _buildTextField(
+                          'Montant Nécessaire',
+                          (value) {
+                            if (value?.isEmpty ?? true)
+                              return 'Veuillez entrer un montant';
+                            if (double.tryParse(value!) == null)
+                              return 'Veuillez entrer un nombre valide';
+                            return null;
+                          },
+                          (value) {
+                            montantNecessaire = double.tryParse(value!) ?? 0.0;
+                          },
+                          keyboardType: TextInputType.number,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 30),
+                ElevatedButton(
                   onPressed: _submit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Couleur.primary,
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    textStyle: TextStyle(fontSize: 18),
+                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    elevation: 5,
                   ),
-                  child: Text('Créer Projet'),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.add,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        'Créer Projet',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTextField(String label, String? Function(String?)? validator,
-      Function(String?)? onSaved) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: TextFormField(
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Couleur.primary, width: 2.0),
-          ),
+  Widget _buildTextField(
+    String label,
+    String? Function(String?)? validator,
+    Function(String?)? onSaved, {
+    int maxLines = 1,
+    TextInputType? keyboardType,
+  }) {
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
-        validator: validator,
-        onSaved: onSaved,
-        keyboardType: label == 'Montant Nécessaire'
-            ? TextInputType.number
-            : TextInputType.text,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Couleur.primary, width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.white,
       ),
+      validator: validator,
+      onSaved: onSaved,
+      maxLines: maxLines,
+      keyboardType: keyboardType,
     );
   }
 }

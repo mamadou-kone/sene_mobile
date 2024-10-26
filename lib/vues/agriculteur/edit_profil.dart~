@@ -1,47 +1,46 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
-import '../../controleur/investisseur_controleur.dart';
+import '../../models/agriculteur.dart';
+import '../../controleur/agriculture_controleur.dart';
 import '../../couleur.dart';
-import '../../models/investisseur.dart';
 
-class InvestisseurEditForm extends StatefulWidget {
-  final Investisseur investisseur;
+class AgriculteurEditForm extends StatefulWidget {
+  final Agriculteur agriculteur;
   final String? image;
 
-  InvestisseurEditForm({required this.investisseur, this.image});
+  AgriculteurEditForm({required this.agriculteur, this.image});
 
   @override
-  _InvestisseurEditFormState createState() => _InvestisseurEditFormState();
+  _AgriculteurEditFormState createState() => _AgriculteurEditFormState();
 }
 
-class _InvestisseurEditFormState extends State<InvestisseurEditForm> {
+class _AgriculteurEditFormState extends State<AgriculteurEditForm> {
   final _formKey = GlobalKey<FormState>();
-  final InvestisseurController _controller = InvestisseurController();
+  final AgriculteurController _controller = AgriculteurController();
 
   late String email;
   late String nom;
   late String prenom;
   late String address;
   late String tel;
-  String? password;
-  Uint8List? image;
+  late String password;
+  Uint8List? image; // Utiliser Uint8List pour l'image
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    email = widget.investisseur.email;
-    nom = widget.investisseur.nom;
-    prenom = widget.investisseur.prenom;
-    address = widget.investisseur.address;
-    tel = widget.investisseur.tel;
+    email = widget.agriculteur.email;
+    nom = widget.agriculteur.nom;
+    prenom = widget.agriculteur.prenom;
+    address = widget.agriculteur.address;
+    tel = widget.agriculteur.tel;
+    password = widget.agriculteur.password;
 
+    // Décoder l'image base64
     if (widget.image != null && widget.image!.isNotEmpty) {
       image = base64Decode(widget.image!);
     }
@@ -49,12 +48,11 @@ class _InvestisseurEditFormState extends State<InvestisseurEditForm> {
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile =
-        await picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       setState(() {
-        image = File(pickedFile.path).readAsBytesSync();
+        image = File(pickedFile.path).readAsBytesSync(); // Lire les octets de l'image
       });
     }
   }
@@ -64,46 +62,24 @@ class _InvestisseurEditFormState extends State<InvestisseurEditForm> {
       setState(() => _isLoading = true);
       _formKey.currentState?.save();
       try {
-        Investisseur updatedInvestisseur = Investisseur(
-          id: widget.investisseur.id,
+        Agriculteur agriculteur = Agriculteur(
+          id: widget.agriculteur.id,
           email: email,
           nom: nom,
           prenom: prenom,
-          tel: tel,
           address: address,
-          password: password ?? widget.investisseur.password,
+          tel: tel,
+          password: password, // Ne pas exposer le mot de passe
         );
 
-        await _controller.updateInvestisseur(
-            widget.investisseur.id, updatedInvestisseur, image);
-
+        await _controller.updateAgriculteur(widget.agriculteur.id, agriculteur, image);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.check_circle, color: Colors.white),
-                SizedBox(width: 8),
-                Text('Profil mis à jour avec succès !'),
-              ],
-            ),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-          ),
+          SnackBar(content: Text('Agriculteur mis à jour avec succès !')),
         );
         Navigator.pop(context);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.error, color: Colors.white),
-                SizedBox(width: 8),
-                Text('Erreur : $e'),
-              ],
-            ),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
+          SnackBar(content: Text('Erreur : $e')),
         );
       } finally {
         setState(() => _isLoading = false);
@@ -111,14 +87,7 @@ class _InvestisseurEditFormState extends State<InvestisseurEditForm> {
     }
   }
 
-  Widget _buildTextField(
-    String label,
-    IconData icon,
-    String? Function(String?)? validator,
-    Function(String?)? onSaved, {
-    String? initialValue,
-    bool isPassword = false,
-  }) {
+  Widget _buildTextField(String label, IconData icon, String? Function(String?)? validator, Function(String?)? onSaved, {String? initialValue, bool obscureText = false}) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
@@ -134,7 +103,7 @@ class _InvestisseurEditFormState extends State<InvestisseurEditForm> {
       ),
       child: TextFormField(
         initialValue: initialValue,
-        obscureText: isPassword,
+        obscureText: obscureText,
         decoration: InputDecoration(
           labelText: label,
           prefixIcon: Icon(icon, color: Couleur.primary),
@@ -159,7 +128,7 @@ class _InvestisseurEditFormState extends State<InvestisseurEditForm> {
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         elevation: 0,
-        title: Text('Édition du profil', style: TextStyle(color: Colors.white)),
+        title: Text('Édition de l\'Agriculteur', style: TextStyle(color: Colors.white)),
         backgroundColor: Couleur.primary,
         iconTheme: IconThemeData(color: Colors.white),
       ),
@@ -187,16 +156,22 @@ class _InvestisseurEditFormState extends State<InvestisseurEditForm> {
                             Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                border:
-                                    Border.all(color: Colors.white, width: 4),
+                                border: Border.all(color: Colors.white, width: 4),
                               ),
                               child: CircleAvatar(
                                 radius: 60,
-                                backgroundImage:
-                                    image != null ? MemoryImage(image!) : null,
+                                backgroundImage: image != null ? MemoryImage(image!) : null,
                                 child: image == null
-                                    ? Icon(Icons.person,
-                                        size: 60, color: Colors.grey)
+                                    ? (widget.image != null && widget.image!.isNotEmpty
+                                    ? ClipOval(
+                                  child: Image.memory(
+                                    base64Decode(widget.image!),
+                                    width: 100,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                                    : Icon(Icons.person, size: 60, color: Colors.grey))
                                     : null,
                               ),
                             ),
@@ -236,48 +211,48 @@ class _InvestisseurEditFormState extends State<InvestisseurEditForm> {
                     child: Column(
                       children: [
                         _buildTextField(
-                            'Nom',
-                            Icons.person_outline,
-                            (value) => value?.isEmpty ?? true
-                                ? 'Veuillez entrer un nom'
-                                : null,
-                            (value) => nom = value ?? '',
-                            initialValue: nom),
+                          'Nom',
+                          Icons.person_outline,
+                              (value) => value?.isEmpty ?? true ? 'Veuillez entrer un nom' : null,
+                              (value) => nom = value ?? '',
+                          initialValue: nom,
+                        ),
                         _buildTextField(
-                            'Prénom',
-                            Icons.person,
-                            (value) => value?.isEmpty ?? true
-                                ? 'Veuillez entrer un prénom'
-                                : null,
-                            (value) => prenom = value ?? '',
-                            initialValue: prenom),
+                          'Prénom',
+                          Icons.person,
+                              (value) => value?.isEmpty ?? true ? 'Veuillez entrer un prénom' : null,
+                              (value) => prenom = value ?? '',
+                          initialValue: prenom,
+                        ),
                         _buildTextField(
-                            'Email',
-                            Icons.email,
-                            (value) => value?.isEmpty ?? true
-                                ? 'Veuillez entrer un email'
-                                : null,
-                            (value) => email = value ?? '',
-                            initialValue: email),
+                          'Email',
+                          Icons.email,
+                              (value) => value?.isEmpty ?? true ? 'Veuillez entrer un email' : null,
+                              (value) => email = value ?? '',
+                          initialValue: email,
+                        ),
                         _buildTextField(
-                            'Téléphone',
-                            Icons.phone,
-                            (value) => value?.isEmpty ?? true
-                                ? 'Veuillez entrer un numéro'
-                                : null,
-                            (value) => tel = value ?? '',
-                            initialValue: tel),
+                          'Téléphone',
+                          Icons.phone,
+                              (value) => value?.isEmpty ?? true ? 'Veuillez entrer un numéro' : null,
+                              (value) => tel = value ?? '',
+                          initialValue: tel,
+                        ),
                         _buildTextField(
-                            'Adresse',
-                            Icons.location_on,
-                            (value) => value?.isEmpty ?? true
-                                ? 'Veuillez entrer une adresse'
-                                : null,
-                            (value) => address = value ?? '',
-                            initialValue: address),
-                        _buildTextField('Mot de passe', Icons.lock,
-                            (value) => null, (value) => password = value ?? '',
-                            initialValue: password, isPassword: true),
+                          'Adresse',
+                          Icons.location_on,
+                              (value) => value?.isEmpty ?? true ? 'Veuillez entrer une adresse' : null,
+                              (value) => address = value ?? '',
+                          initialValue: address,
+                        ),
+                        _buildTextField(
+                          'Mot de passe',
+                          Icons.lock,
+                              (value) => null,
+                              (value) => password = value ?? '',
+                          initialValue: password,
+                          obscureText: true,
+                        ),
                         SizedBox(height: 30),
                         Container(
                           width: double.infinity,
@@ -295,14 +270,13 @@ class _InvestisseurEditFormState extends State<InvestisseurEditForm> {
                             child: _isLoading
                                 ? CircularProgressIndicator(color: Colors.white)
                                 : Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.save),
-                                      SizedBox(width: 8),
-                                      Text('Sauvegarder',
-                                          style: TextStyle(fontSize: 16)),
-                                    ],
-                                  ),
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.save),
+                                SizedBox(width: 8),
+                                Text('Sauvegarder', style: TextStyle(fontSize: 16)),
+                              ],
+                            ),
                           ),
                         ),
                       ],

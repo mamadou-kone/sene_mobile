@@ -78,7 +78,7 @@ class _HomeInvestisseurState extends State<HomeInvestisseur> {
         children: [
           isLoading ? _buildLoadingIndicator() : _buildHome(),
           MesInvestissement(
-            userId: currentUserId,
+            userId: '',
           ),
           MessagePage(),
           InvestorProfilePage(),

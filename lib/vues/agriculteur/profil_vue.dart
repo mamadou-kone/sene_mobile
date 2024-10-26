@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../controleur/agriculture_controleur.dart';
 import '../../couleur.dart';
 import '../../models/agriculteur.dart';
-import 'edit_profil.dart'; // Assurez-vous d'importer votre page d'édition
+import 'edit_profil.dart';
 
 class ProfilPage extends StatefulWidget {
   final String userId;
@@ -28,10 +28,70 @@ class _ProfilPageState extends State<ProfilPage> {
     try {
       agriculteurInfo =
           await agriculteurController.fetchAgriculteurInfo(widget.userId);
-      print('Infos agriculteur: $agriculteurInfo'); // Debug
       setState(() {});
     } catch (e) {
       print('Erreur de chargement des informations : $e');
+    }
+  }
+
+  Widget _buildInfoCard(String title, String value) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Couleur.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(_getIconForTitle(title), color: Couleur.primary),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+                SizedBox(height: 4),
+                Text(value ?? 'Non renseigné',
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _getIconForTitle(String title) {
+    switch (title.toLowerCase()) {
+      case 'nom':
+        return Icons.person;
+      case 'prénom':
+        return Icons.person_outline;
+      case 'email':
+        return Icons.email;
+      case 'téléphone':
+        return Icons.phone;
+      case 'adresse':
+        return Icons.location_on;
+      default:
+        return Icons.info;
     }
   }
 
@@ -42,106 +102,95 @@ class _ProfilPageState extends State<ProfilPage> {
         iconTheme: IconThemeData(color: Colors.white),
         title: Text('Mon Profil', style: TextStyle(color: Colors.white)),
         backgroundColor: Couleur.primary,
+        centerTitle: true,
       ),
-      body: Center(
-        child: agriculteurInfo == null
-            ? CircularProgressIndicator()
-            : Column(
+      body: agriculteurInfo == null
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
                 children: [
                   Container(
-                    margin: EdgeInsets.only(top: 20),
-                    child: CircleAvatar(
-                      radius: 60,
-                      backgroundImage: agriculteurInfo!['image'] != null &&
-                              agriculteurInfo!['image'].isNotEmpty
-                          ? MemoryImage(base64Decode(agriculteurInfo!['image']))
-                          : null,
-                      child: agriculteurInfo == null ||
-                              agriculteurInfo!['image'] == null ||
-                              agriculteurInfo!['image'].isEmpty
-                          ? Icon(Icons.person, size: 60, color: Colors.grey)
-                          : null,
+                    decoration: BoxDecoration(
+                      color: Couleur.primary,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(30),
+                        bottomRight: Radius.circular(30),
+                      ),
+                    ),
+                    padding: EdgeInsets.only(bottom: 30),
+                    child: Center(
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          CircleAvatar(
+                            radius: 60,
+                            backgroundImage:
+                                agriculteurInfo!['image'] != null &&
+                                        agriculteurInfo!['image'].isNotEmpty
+                                    ? MemoryImage(
+                                        base64Decode(agriculteurInfo!['image']))
+                                    : null,
+                            child: agriculteurInfo!['image'] == null ||
+                                    agriculteurInfo!['image'].isEmpty
+                                ? Icon(Icons.person,
+                                    size: 60, color: Colors.grey)
+                                : null,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 5,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                              'Nom: ${agriculteurInfo!['nom'] ?? 'Non renseigné'}',
-                              style: TextStyle(
-                                  fontSize: 24, color: Couleur.primary)),
-                          SizedBox(height: 8),
-                          Text(
-                              'Prénom: ${agriculteurInfo!['prenom'] ?? 'Non renseigné'}',
-                              style: TextStyle(
-                                  fontSize: 24, color: Couleur.primary)),
-                          SizedBox(height: 8),
-                          Text('Email: ${agriculteurInfo!['email']}',
-                              style: TextStyle(
-                                  fontSize: 24, color: Couleur.primary)),
-                          SizedBox(height: 8),
-                          Text(
-                              'Adresse: ${agriculteurInfo!['address'] ?? 'Non renseigné'}',
-                              style: TextStyle(
-                                  fontSize: 24, color: Couleur.primary)),
-                          SizedBox(height: 8),
-                          Text(
-                              'Téléphone: ${agriculteurInfo!['tel'] ?? 'Non renseigné'}',
-                              style: TextStyle(
-                                  fontSize: 24, color: Couleur.primary)),
-                          SizedBox(height: 30),
-                          Center(
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => AgriculteurEditForm(
-                                      agriculteur: Agriculteur(
-                                        id: widget.userId,
-                                        nom: agriculteurInfo!['nom'],
-                                        prenom: agriculteurInfo!['prenom'],
-                                        email: agriculteurInfo!['email'],
-                                        address: agriculteurInfo!['address'],
-                                        tel: agriculteurInfo!['tel'],
-                                        password:
-                                            '', // Ne pas exposer le mot de passe
-                                      ),
-                                      image: agriculteurInfo!['image'],
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        _buildInfoCard('Nom', agriculteurInfo!['nom']),
+                        _buildInfoCard('Prénom', agriculteurInfo!['prenom']),
+                        _buildInfoCard('Email', agriculteurInfo!['email']),
+                        _buildInfoCard('Téléphone', agriculteurInfo!['tel']),
+                        _buildInfoCard('Adresse', agriculteurInfo!['address']),
+                        SizedBox(height: 20),
+                        Container(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AgriculteurEditForm(
+                                    agriculteur: Agriculteur(
+                                      id: widget.userId,
+                                      nom: agriculteurInfo!['nom'],
+                                      prenom: agriculteurInfo!['prenom'],
+                                      email: agriculteurInfo!['email'],
+                                      address: agriculteurInfo!['address'],
+                                      tel: agriculteurInfo!['tel'],
+                                      password:
+                                          '', // Ne pas exposer le mot de passe
                                     ),
+                                    image: agriculteurInfo!['image'],
                                   ),
-                                );
-                              },
-                              icon: Icon(Icons.edit),
-                              label: Text('Éditer'),
-                              style: ElevatedButton.styleFrom(
-                                foregroundColor: Colors.white,
-                                backgroundColor: Couleur.primary,
+                                ),
+                              );
+                            },
+                            icon: Icon(Icons.edit),
+                            label: Text('Éditer'),
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Couleur.primary,
+                              padding: EdgeInsets.symmetric(vertical: 15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-      ),
+            ),
     );
   }
 }

@@ -1,6 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../models/agriculteur.dart';
@@ -28,6 +28,7 @@ class _AgriculteurEditFormState extends State<AgriculteurEditForm> {
   late String tel;
   late String password;
   Uint8List? image; // Utiliser Uint8List pour l'image
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -60,6 +61,7 @@ class _AgriculteurEditFormState extends State<AgriculteurEditForm> {
 
   Future<void> _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
+      setState(() => _isLoading = true);
       _formKey.currentState?.save();
       try {
         Agriculteur agriculteur = Agriculteur(
@@ -75,128 +77,244 @@ class _AgriculteurEditFormState extends State<AgriculteurEditForm> {
         await _controller.updateAgriculteur(
             widget.agriculteur.id, agriculteur, image);
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Agriculteur mis à jour avec succès !')));
+          SnackBar(content: Text('Agriculteur mis à jour avec succès !')),
+        );
         Navigator.pop(context);
       } catch (e) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Erreur : $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur : $e')),
+        );
+      } finally {
+        setState(() => _isLoading = false);
       }
     }
+  }
+
+  Widget _buildTextField(String label, IconData icon,
+      String? Function(String?)? validator, Function(String?)? onSaved,
+      {String? initialValue, bool obscureText = false}) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: TextFormField(
+        initialValue: initialValue,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: Icon(icon, color: Couleur.primary),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide.none,
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          labelStyle: TextStyle(color: Colors.grey[600]),
+        ),
+        validator: validator,
+        onSaved: onSaved,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.white),
-        title:
-            Text('Modifier Agriculteur', style: TextStyle(color: Colors.white)),
+        elevation: 0,
+        title: Text('Édition de l\'Agriculteur',
+            style: TextStyle(color: Colors.white)),
         backgroundColor: Couleur.primary,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildTextField('Email', (value) {
-                if (value?.isEmpty ?? true) return 'Veuillez entrer un email';
-              }, (value) => email = value ?? ''),
-              _buildTextField('Nom', (value) {
-                if (value?.isEmpty ?? true) return 'Veuillez entrer un nom';
-              }, (value) => nom = value ?? ''),
-              _buildTextField('Prénom', (value) {
-                if (value?.isEmpty ?? true) return 'Veuillez entrer un prénom';
-              }, (value) => prenom = value ?? ''),
-              _buildTextField('Adresse', (value) {
-                if (value?.isEmpty ?? true)
-                  return 'Veuillez entrer une adresse';
-              }, (value) => address = value ?? ''),
-              _buildTextField('Téléphone', (value) {
-                if (value?.isEmpty ?? true)
-                  return 'Veuillez entrer un numéro de téléphone';
-              }, (value) => tel = value ?? ''),
-              _buildTextField('Mot de passe', (value) {
-                if (value?.isEmpty ?? true)
-                  return 'Veuillez entrer un mot de passe';
-              }, (value) => password = value ?? '', obscureText: true),
-              SizedBox(height: 20),
-
-              // Affichage de l'image
-              GestureDetector(
-                onTap: _pickImage,
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.grey[300],
-                  child: image == null
-                      ? (widget.image != null && widget.image!.isNotEmpty
-                          ? ClipOval(
-                              child: Image.memory(
-                                base64Decode(widget.image!), // Afficher l'image
-                                width: 100,
-                                height: 100,
-                                fit: BoxFit.cover,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Couleur.primary,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(30),
+                      bottomRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(height: 20),
+                      GestureDetector(
+                        onTap: _pickImage,
+                        child: Stack(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border:
+                                    Border.all(color: Colors.white, width: 4),
                               ),
-                            )
-                          : Icon(Icons.person, size: 60, color: Colors.grey))
-                      : ClipOval(
-                          child: Image.memory(
-                            image!,
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.cover,
+                              child: CircleAvatar(
+                                radius: 60,
+                                backgroundImage:
+                                    image != null ? MemoryImage(image!) : null,
+                                child: image == null
+                                    ? (widget.image != null &&
+                                            widget.image!.isNotEmpty
+                                        ? ClipOval(
+                                            child: Image.memory(
+                                              base64Decode(widget.image!),
+                                              width: 100,
+                                              height: 100,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          )
+                                        : Icon(Icons.person,
+                                            size: 60, color: Colors.grey))
+                                    : null,
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black26,
+                                      blurRadius: 8,
+                                    ),
+                                  ],
+                                ),
+                                child: Icon(
+                                  Icons.camera_alt,
+                                  color: Couleur.primary,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 30),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        _buildTextField(
+                          'Nom',
+                          Icons.person_outline,
+                          (value) => value?.isEmpty ?? true
+                              ? 'Veuillez entrer un nom'
+                              : null,
+                          (value) => nom = value ?? '',
+                          initialValue: nom,
+                        ),
+                        _buildTextField(
+                          'Prénom',
+                          Icons.person,
+                          (value) => value?.isEmpty ?? true
+                              ? 'Veuillez entrer un prénom'
+                              : null,
+                          (value) => prenom = value ?? '',
+                          initialValue: prenom,
+                        ),
+                        _buildTextField(
+                          'Email',
+                          Icons.email,
+                          (value) => value?.isEmpty ?? true
+                              ? 'Veuillez entrer un email'
+                              : null,
+                          (value) => email = value ?? '',
+                          initialValue: email,
+                        ),
+                        _buildTextField(
+                          'Téléphone',
+                          Icons.phone,
+                          (value) => value?.isEmpty ?? true
+                              ? 'Veuillez entrer un numéro'
+                              : null,
+                          (value) => tel = value ?? '',
+                          initialValue: tel,
+                        ),
+                        _buildTextField(
+                          'Adresse',
+                          Icons.location_on,
+                          (value) => value?.isEmpty ?? true
+                              ? 'Veuillez entrer une adresse'
+                              : null,
+                          (value) => address = value ?? '',
+                          initialValue: address,
+                        ),
+                        _buildTextField(
+                          'Mot de passe',
+                          Icons.lock,
+                          (value) => null,
+                          (value) => password = value ?? '',
+                          initialValue: password,
+                          obscureText: true,
+                        ),
+                        SizedBox(height: 30),
+                        Container(
+                          width: double.infinity,
+                          height: 55,
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _submit,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Couleur.primary,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              elevation: 2,
+                            ),
+                            child: _isLoading
+                                ? CircularProgressIndicator(color: Colors.white)
+                                : Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.save),
+                                      SizedBox(width: 8),
+                                      Text('Sauvegarder',
+                                          style: TextStyle(fontSize: 16)),
+                                    ],
+                                  ),
                           ),
                         ),
-                ),
-              ),
-              SizedBox(height: 20),
-              Center(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Couleur.primary,
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    textStyle: TextStyle(fontSize: 18),
-                  ),
-                  onPressed: _submit,
-                  child: Text(
-                    'Mettre à jour',
-                    style: TextStyle(color: Colors.white),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField(String label, String? Function(String?)? validator,
-      Function(String?)? onSaved,
-      {bool obscureText = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: TextFormField(
-        initialValue: label == 'Email'
-            ? email
-            : label == 'Nom'
-                ? nom
-                : label == 'Prénom'
-                    ? prenom
-                    : label == 'Adresse'
-                        ? address
-                        : label == 'Téléphone'
-                            ? tel
-                            : null,
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(),
-        ),
-        validator: validator,
-        onSaved: onSaved,
-        obscureText: obscureText,
+          if (_isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.3),
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        ],
       ),
     );
   }

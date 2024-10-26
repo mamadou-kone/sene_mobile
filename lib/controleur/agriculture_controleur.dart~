@@ -51,6 +51,7 @@ class AgriculteurController {
     }
   }
 
+
   Future<void> logout() async {
     // Supprimez le token d'authentification ou réinitialisez les données utilisateur
     // Par exemple, si vous utilisez SharedPreferences :

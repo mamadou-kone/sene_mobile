@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import '../models/investisseur.dart';
+import '../services/auth_controleur.dart';
 import '../services/crud/investisseur_service.dart';
 import '../config.dart';
 
@@ -10,6 +11,9 @@ class InvestisseurController {
   final InvestisseurService _crudService;
 
   InvestisseurController() : _crudService = InvestisseurService();
+
+  Investisseur? currentInvestisseur; // Pour l'investisseur connecté
+  String currentUserId = AuthController.instance.userId ?? '';
 
   Future<void> addInvestisseur(Investisseur investisseur, File? image) async {
     await _crudService.create('investisseur', investisseur.toJson(),

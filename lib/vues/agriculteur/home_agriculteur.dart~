@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:sene_mobile/couleur.dart';
-import 'package:sene_mobile/vues/agriculteur/login_vente.dart';
 import 'package:sene_mobile/vues/agriculteur/produit_vue.dart';
 import 'package:sene_mobile/vues/agriculteur/profil_vue.dart';
 import 'package:sene_mobile/vues/agriculteur/projet_vue.dart';

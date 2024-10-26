@@ -1,4 +1,4 @@
-import 'dart:convert'; // Pour utiliser base64Decode
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:sene_mobile/couleur.dart';
@@ -18,232 +18,346 @@ class ProjetPage extends StatefulWidget {
 }
 
 class _ProjetPageState extends State<ProjetPage> {
+  static const double _cardPadding = 16.0;
+  static const double _imageSize = 120.0;
+  static const double _borderRadius = 20.0;
+
   late ProjetController controller;
-  String currentUserId = AuthController.instance.userId ?? '';
-  int selectedIndex = 0; // Indice de catégorie sélectionnée
-  late List<Projet> projetsToDisplay = []; // Liste des projets à afficher
+  final String currentUserId = AuthController.instance.userId ?? '';
+  int selectedIndex = 0;
+  late List<Projet> projetsToDisplay = [];
+
+  final List<String> _projectCategories = ['Tous les projets', 'Mes projets'];
 
   @override
   void initState() {
     super.initState();
     controller = ProjetController(ProjetService(), currentUserId);
-    _loadProjects(); // Charger les projets au démarrage
+    _loadProjects();
   }
 
-  void _loadProjects() {
-    controller.loadProjets().then((_) {
-      setState(() {
-        projetsToDisplay = controller.getProjets();
-      });
+  Future<void> _loadProjects() async {
+    await controller.loadProjets();
+    setState(() {
+      projetsToDisplay = controller.getProjets();
     });
   }
 
-  void _loadMyProjets() {
-    controller.loadMyProjets().then((_) {
-      setState(() {
-        projetsToDisplay = controller.getMyProjets();
-      });
+  Future<void> _loadMyProjets() async {
+    await controller.loadMyProjets();
+    setState(() {
+      projetsToDisplay = controller.getMyProjets();
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-
-    // Catégories de projets
-    List<String> projectCategories = ['Tous', 'Mes projets'];
-
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.white),
-        title: const Text('Projets', style: TextStyle(color: Colors.white)),
-        centerTitle: true,
-        backgroundColor: Couleur.primary,
+  Widget _buildSearchBar() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Barre de recherche
-            Padding(
-              padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(.1),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
+      child: TextField(
+        decoration: InputDecoration(
+          hintText: 'Rechercher un projet...',
+          prefixIcon: Icon(Icons.search, color: Couleur.primary),
+          border: InputBorder.none,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryList() {
+    return Container(
+      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: List.generate(
+          _projectCategories.length,
+          (index) => _buildCategoryItem(index),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryItem(int index) {
+    final isSelected = selectedIndex == index;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedIndex = index;
+          index == 1 ? _loadMyProjets() : _loadProjects();
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? Couleur.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(25),
+          border: Border.all(
+            color: isSelected ? Couleur.primary : Colors.grey.shade300,
+            width: 1.5,
+          ),
+        ),
+        child: Text(
+          _projectCategories[index],
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            color: isSelected ? Colors.white : Colors.black87,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProjectCard(Projet projet) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(_borderRadius),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.15),
+            spreadRadius: 2,
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(_borderRadius),
+          onTap: () => Navigator.push(
+            context,
+            PageTransition(
+              child: DetailProjetPage(projet: projet),
+              type: PageTransitionType.bottomToTop,
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(_cardPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Icon(
-                      Icons.search,
-                      color: Colors.black54.withOpacity(.6),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(_borderRadius - 5),
+                      child: _buildProjectImage(projet),
                     ),
-                    const Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Rechercher un projet',
-                          border: InputBorder.none,
-                        ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            projet.titre,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            projet.description,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 16),
+                _buildProgressIndicator(projet),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildAmountInfo(
+                      'Objectif',
+                      '${_formatAmount(projet.montantNecessaire ?? 0)} FCFA', // Gestion de la valeur nulle
+                      Couleur.primary,
+                    ),
+                    _buildAmountInfo(
+                      'Collecté',
+                      '${_formatAmount(projet.montantCollecte ?? 0)} FCFA', // Gestion de la valeur nulle
+                      Couleur.secondary,
+                    ),
+                  ],
+                ),
+                if (selectedIndex == 1) _buildEditButton(projet),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatAmount(double amount) {
+    return amount.toStringAsFixed(0).replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]} ',
+        );
+  }
+
+  Widget _buildProgressIndicator(Projet projet) {
+    final progress = projet.montantNecessaire != 0
+        ? (projet.montantCollecte ?? 0) / projet.montantNecessaire
+        : 0.0; // Éviter la division par zéro
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: LinearProgressIndicator(
+            value: progress,
+            backgroundColor: Colors.grey[200],
+            valueColor: AlwaysStoppedAnimation<Color>(Couleur.secondary),
+            minHeight: 8,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '${(progress * 100).toStringAsFixed(1)}% atteint',
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[600],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAmountInfo(String label, String amount, Color color) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            color: Colors.grey[600],
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          amount,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProjectImage(Projet projet) {
+    return Container(
+      height: _imageSize,
+      width: _imageSize,
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(_borderRadius - 5),
+      ),
+      child: projet.image != null
+          ? Image.memory(
+              base64Decode(projet.image!),
+              fit: BoxFit.cover,
+            )
+          : Icon(
+              Icons.image,
+              size: 40,
+              color: Colors.grey[400],
+            ),
+    );
+  }
+
+  Widget _buildEditButton(Projet projet) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: TextButton.icon(
+        onPressed: () {
+          Navigator.push(
+            context,
+            PageTransition(
+              child: FormulaireProjet(projet: projet),
+              type: PageTransitionType.bottomToTop,
+            ),
+          ).then((_) => _loadMyProjets());
+        },
+        icon: Icon(Icons.edit, color: Couleur.primary, size: 20),
+        label: Text(
+          'Modifier',
+          style: TextStyle(color: Couleur.primary),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        iconTheme: IconThemeData(color: Colors.white),
+        elevation: 0,
+        title: const Text(
+          'Projets',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Couleur.primary,
+      ),
+      body: RefreshIndicator(
+        onRefresh: () =>
+            selectedIndex == 1 ? _loadMyProjets() : _loadProjects(),
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  _buildSearchBar(),
+                  _buildCategoryList(),
+                ],
               ),
             ),
-            // Catégories de projets
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              height: 50.0,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: projectCategories.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedIndex = index;
-                        if (selectedIndex == 1) {
-                          _loadMyProjets();
-                        } else {
-                          _loadProjects(); // Recharger tous les projets
-                        }
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Text(
-                        projectCategories[index],
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: selectedIndex == index
-                              ? FontWeight.bold
-                              : FontWeight.w300,
-                          color: selectedIndex == index
-                              ? Couleur.primary
-                              : Colors.black54,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            // Liste des projets
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              height: size.height * 0.7,
-              child: ListView.builder(
-                itemCount: projetsToDisplay.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final projet = projetsToDisplay[index];
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        PageTransition(
-                          child: DetailProjetPage(projet: projet),
-                          type: PageTransitionType.bottomToTop,
-                        ),
-                      );
-                    },
-                    child: Card(
-                      margin: const EdgeInsets.symmetric(vertical: 10),
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          children: [
-                            // Affichage de l'image
-                            projet.image != null
-                                ? Image.memory(
-                                    base64Decode(projet.image!),
-                                    height: 100, // Hauteur de l'image
-                                    width: 100, // Largeur de l'image
-                                    fit: BoxFit.cover,
-                                  )
-                                : Container(
-                                    height: 100,
-                                    width: 100,
-                                    color: Colors.grey[300],
-                                    child: const Center(
-                                        child: Text('Pas d\'image')),
-                                  ),
-                            const SizedBox(
-                                width: 16), // Espace entre l'image et le texte
-                            // Informations du projet
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    projet.titre,
-                                    style: const TextStyle(
-                                      color: Colors.black87,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    projet.description,
-                                    style: const TextStyle(
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Montant Nécessaire: \$${projet.montantNecessaire}',
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Montant Collecté: \$${projet.montantCollecte}',
-                                    style: TextStyle(
-                                      color: Couleur.secondary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // Bouton d'édition visible uniquement pour "Mes projets"
-                            if (selectedIndex == 1)
-                              IconButton(
-                                icon: Icon(Icons.edit, color: Couleur.primary),
-                                onPressed: () {
-                                  // Naviguer vers la page d'édition du projet
-                                  Navigator.push(
-                                    context,
-                                    PageTransition(
-                                      child: FormulaireProjet(
-                                          projet:
-                                              projet), // Passez le projet à modifier
-                                      type: PageTransitionType.bottomToTop,
-                                    ),
-                                  ).then((_) {
-                                    // Recharger les projets après modification
-                                    _loadMyProjets();
-                                  });
-                                },
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => _buildProjectCard(projetsToDisplay[index]),
+                childCount: projetsToDisplay.length,
               ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // Logique pour ajouter un nouveau projet
           Navigator.push(
             context,
             PageTransition(
@@ -253,7 +367,11 @@ class _ProjetPageState extends State<ProjetPage> {
           );
         },
         backgroundColor: Couleur.primary,
-        child: const Icon(Icons.add, color: Colors.white),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text(
+          'Nouveau projet',
+          style: TextStyle(color: Colors.white),
+        ),
       ),
     );
   }
