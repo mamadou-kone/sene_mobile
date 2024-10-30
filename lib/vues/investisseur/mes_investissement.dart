@@ -38,13 +38,16 @@ class MesInvestissement extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         elevation: 0,
         backgroundColor: Couleur.primary,
-        title: Text(
-          'Mes Investissements',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+        title: Center(
+          child: Text(
+            'Mes Investissements',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         actions: [
@@ -59,14 +62,6 @@ class MesInvestissement extends StatelessWidget {
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: getInvestissementsByUser(userId),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Couleur.primary),
-              ),
-            );
-          }
-
           if (snapshot.hasError) {
             return Center(
               child: Column(
@@ -134,7 +129,7 @@ class MesInvestissement extends StatelessWidget {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      '${totalInvestissement.toStringAsFixed(2)} €',
+                      '${totalInvestissement.toStringAsFixed(2)} FCFA',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 24,
@@ -207,11 +202,9 @@ class MesInvestissement extends StatelessWidget {
                                     SizedBox(height: 8),
                                     Row(
                                       children: [
-                                        Icon(Icons.euro,
-                                            size: 16, color: Couleur.primary),
                                         SizedBox(width: 4),
                                         Text(
-                                          '${investissement['montant']}',
+                                          '${investissement['montant']} FCFA',
                                           style: TextStyle(
                                             fontSize: 16,
                                             color: Couleur.primary,
@@ -223,7 +216,8 @@ class MesInvestissement extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              Icon(Icons.arrow_forward_ios, color: Colors.grey),
+                              Icon(Icons.arrow_forward_ios,
+                                  color: Couleur.primary),
                             ],
                           ),
                         ),

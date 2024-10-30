@@ -63,6 +63,7 @@ class InvestisseurController {
     }
   }
 
+
   void logout(BuildContext context) {
     // Ajoutez ici la logique de déconnexion, comme la suppression des tokens
     Navigator.pushReplacement(

@@ -41,77 +41,32 @@ class _InvestorProfilePageState extends State<InvestorProfilePage> {
     }
   }
 
-  Widget _buildInfoCard(String title, String value) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 8),
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Couleur.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
+  void _confirmLogout() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirmation'),
+          content: Text('Êtes-vous sûr de vouloir vous déconnecter ?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Annuler'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Ferme la boîte de dialogue
+              },
             ),
-            child: Icon(
-              _getIconForTitle(title),
-              color: Couleur.primary,
+            TextButton(
+              child: Text('Déconnexion'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Ferme la boîte de dialogue
+                investisseurController
+                    .logout(context); // Déconnecte l'utilisateur
+              },
             ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  value ?? 'Non renseigné',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
-  }
-
-  IconData _getIconForTitle(String title) {
-    switch (title.toLowerCase()) {
-      case 'nom':
-        return Icons.person;
-      case 'prénom':
-        return Icons.person_outline;
-      case 'email':
-        return Icons.email;
-      case 'téléphone':
-        return Icons.phone;
-      case 'adresse':
-        return Icons.location_on;
-      default:
-        return Icons.info;
-    }
   }
 
   @override
@@ -124,6 +79,12 @@ class _InvestorProfilePageState extends State<InvestorProfilePage> {
         backgroundColor: Couleur.primary,
         centerTitle: true,
         automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout, color: Colors.white),
+            onPressed: _confirmLogout, // Appelle la fonction de confirmation
+          ),
+        ],
       ),
       body: investisseurInfo == null
           ? Center(child: CircularProgressIndicator())
@@ -221,5 +182,72 @@ class _InvestorProfilePageState extends State<InvestorProfilePage> {
               ),
             ),
     );
+  }
+
+  Widget _buildInfoCard(String title, String value) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Couleur.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              _getIconForTitle(title),
+              color: Couleur.primary,
+            ),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  value ?? 'Non renseigné',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _getIconForTitle(String title) {
+    switch (title.toLowerCase()) {
+      case 'nom':
+        return Icons.person;
+      case 'prénom':
+        return Icons.person_outline;
+      case 'email':
+        return Icons.email;
+      case 'téléphone':
+        return Icons.phone;
+      case 'adresse':
+        return Icons.location_on;
+      default:
+        return Icons.info;
+    }
   }
 }

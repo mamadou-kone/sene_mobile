@@ -28,8 +28,8 @@ class _HomeAchatState extends State<HomeAchat> {
   List<Produit> displayedProduits = [];
   String userIdP = AuthController.instance.userId.toString();
   Map<String, dynamic>? clientInfo;
-  String? panierId; // Déclarez panierId ici
-  bool isPanierIdFetched = false; // Drapeau pour contrôler l'appel
+  String? panierId;
+  bool isPanierIdFetched = false;
   int _selectedIndex = 0;
   final TextEditingController _searchController = TextEditingController();
 
@@ -47,7 +47,7 @@ class _HomeAchatState extends State<HomeAchat> {
       try {
         panierId = await ClientController().fetchPanierId(userIdP);
         print("Panier ID récupéré : $panierId");
-        isPanierIdFetched = true; // Marquez comme récupéré
+        isPanierIdFetched = true;
         if (!mounted) return;
         setState(() {});
       } catch (e) {
@@ -102,7 +102,6 @@ class _HomeAchatState extends State<HomeAchat> {
   Future<void> _ajouterAuPanier(String produitId) async {
     if (panierId != null && panierId!.isNotEmpty) {
       try {
-        // Remplacez 1 par la quantité désirée
         await PanierController()
             .addProduitToPanier(userIdP, produitId, panierId!, 1);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -135,18 +134,19 @@ class _HomeAchatState extends State<HomeAchat> {
           children: [
             Center(
               child: Text(
-                "Salut ${clientInfo?['prenom'] ?? 'Client'} ${clientInfo?['nom'] ?? ''} 👋🏾",
-                style: TextStyle(color: Colors.white),
+                "Bonjour ${clientInfo?['prenom'] ?? 'Client'} ${clientInfo?['nom'] ?? ''}",
+                style: TextStyle(color: Colors.white, fontSize: 18),
               ),
             ),
             SizedBox(height: 4),
             Text(
-              "Bienvenue dans votre espace!",
+              "Bienvenue dans votre espace",
               style: TextStyle(color: Colors.white70, fontSize: 14),
             ),
           ],
         ),
         automaticallyImplyLeading: false,
+        elevation: 2,
       ),
       body: IndexedStack(
         index: _selectedIndex,
@@ -207,6 +207,8 @@ class _HomeAchatState extends State<HomeAchat> {
         height: 200,
         autoPlay: true,
         enlargeCenterPage: true,
+        autoPlayCurve: Curves.easeInOut,
+        autoPlayAnimationDuration: Duration(milliseconds: 800),
       ),
       items: displayedProduits.map((produit) {
         return Builder(
@@ -220,53 +222,46 @@ class _HomeAchatState extends State<HomeAchat> {
                   ),
                 );
               },
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                margin: EdgeInsets.symmetric(horizontal: 5.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10.0),
-                  child: Stack(
-                    children: [
-                      produit.image != null
-                          ? Image.memory(
-                              base64Decode(produit.image!),
-                              fit: BoxFit.cover,
-                            )
-                          : Container(color: Colors.grey),
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          color: Colors.black.withOpacity(0.6),
-                          padding: EdgeInsets.all(10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                produit.nom,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10.0),
+                child: Stack(
+                  children: [
+                    produit.image != null
+                        ? Image.memory(
+                            base64Decode(produit.image!),
+                            fit: BoxFit.cover,
+                          )
+                        : Container(color: Colors.grey),
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        color: Colors.black.withOpacity(0.6),
+                        padding: EdgeInsets.all(10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              produit.nom,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
                               ),
-                              Text(
-                                'Prix: ${produit.prix} FCFA',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
+                            ),
+                            Text(
+                              'Prix: ${produit.prix} FCFA',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             );
@@ -283,7 +278,7 @@ class _HomeAchatState extends State<HomeAchat> {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.9,
+        childAspectRatio: 0.8,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
       ),
@@ -337,8 +332,6 @@ class _HomeAchatState extends State<HomeAchat> {
   }
 }
 
-// Nouveau widget ProductCard
-
 class ProductCard extends StatelessWidget {
   const ProductCard({
     super.key,
@@ -368,7 +361,7 @@ class ProductCard extends StatelessWidget {
             borderRadius: const BorderRadius.all(Radius.circular(10)),
             side: BorderSide(color: Colors.grey.shade200),
           ),
-          elevation: 0.1,
+          elevation: 2,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

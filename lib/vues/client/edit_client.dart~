@@ -282,7 +282,7 @@ class _ClientEditFormState extends State<ClientEditForm> {
                                 : Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: const [
-                                      Icon(Icons.save, color: Colors.white),
+                                      Icon(Icons.save),
                                       SizedBox(width: 8),
                                       Text('Sauvegarder',
                                           style: TextStyle(

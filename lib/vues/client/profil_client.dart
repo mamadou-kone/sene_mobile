@@ -37,123 +37,158 @@ class _ClientProfilePageState extends State<ClientProfilePage> {
     }
   }
 
+  Widget _buildInfoCard(String title, String value) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Couleur.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(_getIconForTitle(title), color: Couleur.primary),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+                SizedBox(height: 4),
+                Text(value.isNotEmpty ? value : 'Non renseigné',
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _getIconForTitle(String title) {
+    switch (title.toLowerCase()) {
+      case 'nom':
+        return Icons.person;
+      case 'prénom':
+        return Icons.person_outline;
+      case 'email':
+        return Icons.email;
+      case 'téléphone':
+        return Icons.phone;
+      case 'adresse':
+        return Icons.location_on;
+      default:
+        return Icons.info;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: Text('Mon Profil', style: TextStyle(color: Colors.white)),
-        ),
-        backgroundColor: Couleur.primary,
         automaticallyImplyLeading: false,
+        title: Text('Mon Profil', style: TextStyle(color: Colors.white)),
+        backgroundColor: Couleur.primary,
+        centerTitle: true,
       ),
-      body: Center(
-        child: clientInfo == null
-            ? CircularProgressIndicator()
-            : SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(top: 20),
-                      child: CircleAvatar(
-                        radius: 60,
-                        backgroundImage: clientInfo!['image'] != null &&
-                                clientInfo!['image'].isNotEmpty
-                            ? MemoryImage(base64Decode(clientInfo!['image']))
-                            : null,
-                        child: clientInfo!['image'] == null ||
-                                clientInfo!['image'].isEmpty
-                            ? Icon(Icons.person, size: 60, color: Colors.grey)
-                            : null,
+      body: clientInfo == null
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Couleur.primary,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(30),
+                        bottomRight: Radius.circular(30),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 5,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
+                    padding: EdgeInsets.only(bottom: 30),
+                    child: Center(
+                      child: Hero(
+                        tag: 'client_profile_image', // Unique tag
+                        child: CircleAvatar(
+                          radius: 60,
+                          backgroundImage: clientInfo!['image'] != null &&
+                                  clientInfo!['image'].isNotEmpty
+                              ? MemoryImage(base64Decode(clientInfo!['image']))
+                              : null,
+                          child: clientInfo!['image'] == null ||
+                                  clientInfo!['image'].isEmpty
+                              ? Icon(Icons.person, size: 60, color: Colors.grey)
+                              : null,
                         ),
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Nom: ${clientInfo!['nom'] ?? 'Non renseigné'}',
-                              style: TextStyle(
-                                  fontSize: 24, color: Couleur.primary),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Prénom: ${clientInfo!['prenom'] ?? 'Non renseigné'}',
-                              style: TextStyle(
-                                  fontSize: 24, color: Couleur.primary),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Email: ${clientInfo!['email'] ?? 'Non renseigné'}',
-                              style: TextStyle(
-                                  fontSize: 24, color: Couleur.primary),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Téléphone: ${clientInfo!['tel'] ?? 'Non renseigné'}',
-                              style: TextStyle(
-                                  fontSize: 24, color: Couleur.primary),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Adresse: ${clientInfo!['address'] ?? 'Non renseigné'}',
-                              style: TextStyle(
-                                  fontSize: 24, color: Couleur.primary),
-                            ),
-                            SizedBox(height: 30),
-                            Center(
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ClientEditForm(
-                                        client: Client(
-                                          id: clientInfo!['id'] ??
-                                              'non renseigné',
-                                          email: clientInfo!['email']!,
-                                          nom: clientInfo!['nom']!,
-                                          prenom: clientInfo!['prenom']!,
-                                          tel: clientInfo!['tel']!,
-                                          address: clientInfo!['address']!,
-                                          password:
-                                              '', // Ne pas exposer le mot de passe
-                                        ),
-                                        image: clientInfo!['image'],
-                                      ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        _buildInfoCard('Nom', clientInfo!['nom'] ?? ''),
+                        _buildInfoCard('Prénom', clientInfo!['prenom'] ?? ''),
+                        _buildInfoCard('Email', clientInfo!['email'] ?? ''),
+                        _buildInfoCard('Téléphone', clientInfo!['tel'] ?? ''),
+                        _buildInfoCard('Adresse', clientInfo!['address'] ?? ''),
+                        SizedBox(height: 20),
+                        Container(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ClientEditForm(
+                                    client: Client(
+                                      id: clientInfo!['id'] ?? 'non renseigné',
+                                      email: clientInfo!['email']!,
+                                      nom: clientInfo!['nom']!,
+                                      prenom: clientInfo!['prenom']!,
+                                      tel: clientInfo!['tel']!,
+                                      address: clientInfo!['address']!,
+                                      password:
+                                          '', // Ne pas exposer le mot de passe
                                     ),
-                                  );
-                                },
-                                icon: Icon(Icons.edit),
-                                label: Text('Éditer'),
-                                style: ElevatedButton.styleFrom(
-                                  foregroundColor: Colors.white,
-                                  backgroundColor: Couleur.primary,
+                                    image: clientInfo!['image'],
+                                  ),
                                 ),
+                              );
+                            },
+                            icon: Icon(Icons.edit),
+                            label: Text('Éditer'),
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Couleur.primary,
+                              padding: EdgeInsets.symmetric(vertical: 15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-      ),
+            ),
     );
   }
 }

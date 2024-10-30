@@ -49,11 +49,9 @@ class _FinancierPageState extends State<FinancierPage> {
           // Retour à la page précédente
           Navigator.pop(context);
         } catch (error) {
-          print(
-              'Erreur lors de l\'investissement : $error'); // Ajout pour débogage
+          print('Erreur lors de l\'investissement : $error'); // Ajout pour débogage
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text('Erreur lors de l\'investissement : $error')),
+            SnackBar(content: Text('Erreur lors de l\'investissement : $error')),
           );
         }
       } else {
@@ -81,14 +79,14 @@ class _FinancierPageState extends State<FinancierPage> {
             // Afficher l'image du projet
             widget.projet.image != null
                 ? Card(
-                    elevation: 4,
-                    child: Image.memory(
-                      base64Decode(widget.projet.image!),
-                      fit: BoxFit.cover,
-                      height: 200,
-                      width: double.infinity,
-                    ),
-                  )
+              elevation: 4,
+              child: Image.memory(
+                base64Decode(widget.projet.image!),
+                fit: BoxFit.cover,
+                height: 200,
+                width: double.infinity,
+              ),
+            )
                 : Container(),
             SizedBox(height: 16),
             Card(
@@ -142,18 +140,18 @@ class _FinancierPageState extends State<FinancierPage> {
                   _isLoading
                       ? CircularProgressIndicator()
                       : ElevatedButton.icon(
-                          onPressed: _submitInvestment,
-                          label: Text(
-                            'Investir',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Couleur.primary,
-                            padding: EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 20),
-                            textStyle: TextStyle(fontSize: 16),
-                          ),
-                        ),
+                    onPressed: _submitInvestment,
+                    label: Text(
+                      'Investir',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Couleur.primary,
+                      padding: EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 20),
+                      textStyle: TextStyle(fontSize: 16),
+                    ),
+                  ),
                 ],
               ),
             ),

@@ -426,7 +426,10 @@ class _HomeAgriculteurState extends State<HomeAgriculteur> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Annuler'),
+              child: Text(
+                'Annuler',
+                style: TextStyle(color: Couleur.primary, fontSize: 16),
+              ),
             ),
             TextButton(
               onPressed: () {
@@ -442,8 +445,7 @@ class _HomeAgriculteurState extends State<HomeAgriculteur> {
   }
 
   void _logout() async {
-    // Logique de déconnexion
-    // Par exemple, vous pouvez appeler une méthode pour supprimer le token
+    // Effacer le token de connexion
     await agriculteurController
         .logout(); // Assurez-vous d'avoir une méthode logout dans votre contrôleur
 
