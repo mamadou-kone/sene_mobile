@@ -37,6 +37,33 @@ class _ClientProfilePageState extends State<ClientProfilePage> {
     }
   }
 
+  void _confirmLogout() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirmation'),
+          content: Text('Êtes-vous sûr de vouloir vous déconnecter ?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Annuler'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Ferme la boîte de dialogue
+              },
+            ),
+            TextButton(
+              child: Text('Déconnexion'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Ferme la boîte de dialogue
+                clientController.logout(context); // Déconnecte l'utilisateur
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildInfoCard(String title, String value) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8),
@@ -106,6 +133,12 @@ class _ClientProfilePageState extends State<ClientProfilePage> {
         title: Text('Mon Profil', style: TextStyle(color: Colors.white)),
         backgroundColor: Couleur.primary,
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout, color: Colors.white),
+            onPressed: _confirmLogout, // Appelle la fonction de confirmation
+          ),
+        ],
       ),
       body: clientInfo == null
           ? Center(child: CircularProgressIndicator())

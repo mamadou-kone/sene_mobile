@@ -40,7 +40,7 @@ class _LoginVendreState extends State<LoginVendre> {
             ),
             child: const Icon(Icons.arrow_back, color: Colors.black87),
           ),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pushNamed(context, '/welcome'),
         ),
         systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
@@ -175,13 +175,22 @@ class _LoginVendreState extends State<LoginVendre> {
                                     setState(() => _isLoading = false);
 
                                     if (result['success']) {
-                                      Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
+                                      String role = result['role'];
+
+                                      // Redirection basée sur le rôle
+                                      if (role == 'Agriculteur') {
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
                                             builder: (context) =>
                                                 HomeAgriculteur(
-                                                    userInfo: result)),
-                                      );
+                                                    userInfo: result),
+                                          ),
+                                        );
+                                      } else {
+                                        Navigator.pushReplacementNamed(
+                                            context, '/access_denied');
+                                      }
                                     } else {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(

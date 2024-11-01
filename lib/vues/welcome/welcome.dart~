@@ -27,7 +27,7 @@ class WelcomePage extends StatelessWidget {
                 alignment: Alignment.center,
                 margin: EdgeInsets.only(left: 50, right: 50),
                 child: Text(
-                  'Bienvenue! Vous êtes investisseur ou Client ou encore Agriculteur ?',
+                  'Bienvenue! Vous voulez investir ou Acheter ou encore vendre?',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 25,
@@ -47,7 +47,7 @@ class WelcomePage extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Couleur.primary),
-                  child: Text('Investisseur',
+                  child: Text('Investir',
                       style: TextStyle(fontSize: 18, color: Colors.white)),
                 ),
               ),
@@ -63,7 +63,7 @@ class WelcomePage extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Couleur.primary),
                   child: Text(
-                    'Agriculteur',
+                    'Vendre',
                     style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
                 ),
@@ -79,7 +79,7 @@ class WelcomePage extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Couleur.primary),
-                  child: Text('Client',
+                  child: Text('Acheter',
                       style: TextStyle(fontSize: 18, color: Colors.white)),
                 ),
               ),

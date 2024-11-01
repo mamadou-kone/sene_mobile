@@ -254,7 +254,7 @@ class _ClientFormState extends State<ClientForm> {
                         child: _isLoading
                             ? CircularProgressIndicator(color: Colors.white)
                             : Text(
-                                'Créer Client',
+                                'Créer le compte',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,

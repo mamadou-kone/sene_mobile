@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sene_mobile/couleur.dart'; // Assurez-vous que ce chemin est correct
+import 'package:sene_mobile/couleur.dart';
 import '../../models/agriculteur.dart';
 import '../../controleur/agriculture_controleur.dart';
 
@@ -13,6 +13,7 @@ class AgriculteurForm extends StatefulWidget {
 class _AgriculteurFormState extends State<AgriculteurForm> {
   final _formKey = GlobalKey<FormState>();
   final AgriculteurController _controller = AgriculteurController();
+  bool _isLoading = false; // Ajout d'un état de chargement
 
   String email = '';
   String nom = '';
@@ -24,8 +25,10 @@ class _AgriculteurFormState extends State<AgriculteurForm> {
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile =
-        await picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 70,
+    );
 
     if (pickedFile != null) {
       setState(() {
@@ -36,13 +39,15 @@ class _AgriculteurFormState extends State<AgriculteurForm> {
 
   Future<void> _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
+      setState(() => _isLoading = true);
       _formKey.currentState?.save();
+
       try {
-        // Générer un ID unique (ici basé sur la date/heure, mais tu peux utiliser un UUID)
+        // Générer un ID unique
         String id = DateTime.now().millisecondsSinceEpoch.toString();
 
         Agriculteur agriculteur = Agriculteur(
-          id: id, // Inclure l'identifiant
+          id: id,
           email: email,
           nom: nom,
           prenom: prenom,
@@ -53,10 +58,35 @@ class _AgriculteurFormState extends State<AgriculteurForm> {
 
         await _controller.addAgriculteur(agriculteur, image);
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Agriculteur créé avec succès !')));
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 8),
+                Text('Agriculteur créé avec succès !'),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        Navigator.pop(context);
       } catch (e) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Erreur : $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.error_outline, color: Colors.white),
+                SizedBox(width: 8),
+                Text('Erreur : $e'),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } finally {
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -64,95 +94,200 @@ class _AgriculteurFormState extends State<AgriculteurForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
+        elevation: 0,
         title: Text('Créer un Agriculteur'),
         backgroundColor: Couleur.primary,
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Informations de l\'agriculteur',
-                style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    fontStyle: FontStyle.italic,
-                    color: Couleur.primary),
-              ),
-              SizedBox(height: 20),
-              _buildTextField('Email', (value) {
-                if (value?.isEmpty ?? true) return 'Veuillez entrer un email';
-              }, (value) => email = value ?? ''),
-              _buildTextField('Nom', (value) {
-                if (value?.isEmpty ?? true) return 'Veuillez entrer un nom';
-              }, (value) => nom = value ?? ''),
-              _buildTextField('Prénom', (value) {
-                if (value?.isEmpty ?? true) return 'Veuillez entrer un prénom';
-              }, (value) => prenom = value ?? ''),
-              _buildTextField('Adresse', (value) {
-                if (value?.isEmpty ?? true)
-                  return 'Veuillez entrer une adresse';
-              }, (value) => address = value ?? ''),
-              _buildTextField('Téléphone', (value) {
-                if (value?.isEmpty ?? true)
-                  return 'Veuillez entrer un numéro de téléphone';
-              }, (value) => tel = value ?? ''),
-              _buildTextField('Mot de passe', (value) {
-                if (value?.isEmpty ?? true)
-                  return 'Veuillez entrer un mot de passe';
-              }, (value) => password = value ?? '', obscureText: true),
-              SizedBox(height: 20),
-              GestureDetector(
-                onTap: _pickImage,
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.grey[300],
-                  child: image == null
-                      ? Icon(Icons.add_a_photo,
-                          size: 50, color: Couleur.primary)
-                      : ClipOval(
-                          child: Image.file(
-                            image!,
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.cover,
-                          ),
+        child: Column(
+          children: [
+            Container(
+              color: Couleur.primary,
+              height: 100,
+              child: Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.center,
+                children: [
+                  Positioned(
+                    bottom: -50,
+                    child: GestureDetector(
+                      onTap: _pickImage,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 4),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 10,
+                              spreadRadius: 2,
+                            ),
+                          ],
                         ),
-                ),
-              ),
-              SizedBox(height: 20),
-              Center(
-                child: ElevatedButton(
-                  onPressed: _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Couleur.primary,
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    textStyle: TextStyle(fontSize: 18),
+                        child: CircleAvatar(
+                          radius: 50,
+                          backgroundColor: Colors.grey[200],
+                          child: image == null
+                              ? Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.add_a_photo,
+                                        size: 32, color: Couleur.primary),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      'Photo',
+                                      style: TextStyle(
+                                        color: Couleur.primary,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : ClipOval(
+                                  child: Image.file(
+                                    image!,
+                                    width: 100,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
                   ),
-                  child: Text('Créer Agriculteur'),
+                ],
+              ),
+            ),
+            SizedBox(height: 60),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Informations Personnelles',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Couleur.primary,
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            _buildTextField(
+                              'Email',
+                              Icons.email_outlined,
+                              (value) => value?.isEmpty ?? true
+                                  ? 'Veuillez entrer un email'
+                                  : null,
+                              (value) => email = value ?? '',
+                            ),
+                            _buildTextField(
+                              'Nom',
+                              Icons.person_outline,
+                              (value) => value?.isEmpty ?? true
+                                  ? 'Veuillez entrer un nom'
+                                  : null,
+                              (value) => nom = value ?? '',
+                            ),
+                            _buildTextField(
+                              'Prénom',
+                              Icons.person_outline,
+                              (value) => value?.isEmpty ?? true
+                                  ? 'Veuillez entrer un prénom'
+                                  : null,
+                              (value) => prenom = value ?? '',
+                            ),
+                            _buildTextField(
+                              'Adresse',
+                              Icons.location_on_outlined,
+                              (value) => value?.isEmpty ?? true
+                                  ? 'Veuillez entrer une adresse'
+                                  : null,
+                              (value) => address = value ?? '',
+                            ),
+                            _buildTextField(
+                              'Téléphone',
+                              Icons.phone_outlined,
+                              (value) => value?.isEmpty ?? true
+                                  ? 'Veuillez entrer un numéro'
+                                  : null,
+                              (value) => tel = value ?? '',
+                            ),
+                            _buildTextField(
+                              'Mot de passe',
+                              Icons.lock_outline,
+                              (value) => value?.isEmpty ?? true
+                                  ? 'Veuillez entrer un mot de passe'
+                                  : null,
+                              (value) => password = value ?? '',
+                              obscureText: true,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _submit,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Couleur.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 2,
+                        ),
+                        child: _isLoading
+                            ? CircularProgressIndicator(color: Colors.white)
+                            : Text(
+                                'Créer Agriculteur',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildTextField(String label, String? Function(String?)? validator,
-      Function(String?)? onSaved,
-      {bool obscureText = false}) {
+  Widget _buildTextField(
+    String label,
+    IconData icon,
+    String? Function(String?)? validator,
+    Function(String?)? onSaved, {
+    bool obscureText = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: TextFormField(
         decoration: InputDecoration(
           labelText: label,
+          prefixIcon: Icon(icon),
           border: OutlineInputBorder(),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Couleur.primary, width: 2.0),

@@ -1,10 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data'; // Importer Uint8List
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:sene_mobile/vues/client/login_achat.dart';
-
 import '../config.dart';
 import '../models/client.dart';
 import '../services/crud/client_service.dart';
@@ -76,13 +72,5 @@ class ClientController {
       throw Exception(
           'Erreur lors de la récupération de l\'ID du panier: ${response.statusCode}');
     }
-  }
-
-  void logout(BuildContext context) {
-    // Ajoutez ici la logique de déconnexion, comme la suppression des tokens
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => LoginAcheter()),
-    );
   }
 }

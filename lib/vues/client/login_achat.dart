@@ -1,202 +1,248 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../../services/auth_controleur.dart';
 import '../../couleur.dart';
 import '../../models/user.dart';
-import '../../services/auth_controleur.dart';
 
-class LoginAcheter extends StatelessWidget {
+class LoginAcheter extends StatefulWidget {
+  @override
+  _LoginAcheterState createState() => _LoginAcheterState();
+}
+
+class _LoginAcheterState extends State<LoginAcheter> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final AuthController authController = AuthController.instance;
+  bool _isPasswordVisible = false;
+  bool _isLoading = false;
 
-  final FocusNode usernameFocusNode = FocusNode();
-  final FocusNode passwordFocusNode = FocusNode();
+  @override
+  void dispose() {
+    usernameController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          height: MediaQuery.of(context).size.height,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Image.asset(
-                'assets/images/login_bg.png',
-                fit: BoxFit.cover,
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.9),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.arrow_back, color: Colors.black87),
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+      ),
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/login_bg.png'),
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+              Colors.black.withOpacity(0.4),
+              BlendMode.darken,
+            ),
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 10),
-                  Expanded(
-                    flex: 1,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          margin: const EdgeInsets.only(left: 5, top: 5),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.elliptical(20, 15),
-                              topLeft: Radius.elliptical(20, 15),
-                            ),
-                          ),
-                          child: const Icon(Icons.arrow_back),
-                        ),
-                      ),
+                  const SizedBox(height: 40),
+                  Center(
+                    child: Image.asset(
+                      'assets/images/logo_sene_blanc.png',
+                      height: 120,
                     ),
                   ),
-                  Expanded(
-                    flex: 4,
-                    child: Center(
-                      child: Image.asset(
-                        'assets/images/logo_sene_blanc.png',
-                      ),
+                  const SizedBox(height: 60),
+                  Text(
+                    'Connexion',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
                     ),
+                    textAlign: TextAlign.center,
                   ),
-                  Expanded(
-                    flex: 5,
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.5),
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(40.0),
+                  const SizedBox(height: 40),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: Offset(0, 5),
                         ),
-                      ),
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 20),
-                          SizedBox(
-                            width: 250,
-                            height: 45,
-                            child: TextField(
-                              focusNode: usernameFocusNode,
-                              controller: usernameController,
-                              decoration: InputDecoration(
-                                labelText: 'Email',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                filled: true,
-                                fillColor: Couleur.primary,
-                                labelStyle: const TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: usernameController,
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.email_outlined,
+                                color: Couleur.primary),
+                            labelText: 'Email',
+                            labelStyle: TextStyle(color: Colors.grey[700]),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
                             ),
+                            filled: true,
+                            fillColor: Colors.grey[100],
                           ),
-                          const SizedBox(height: 20),
-                          SizedBox(
-                            width: 250,
-                            height: 45,
-                            child: TextField(
-                              focusNode: passwordFocusNode,
-                              controller: passwordController,
-                              decoration: InputDecoration(
-                                labelText: 'Mot de passe',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                filled: true,
-                                fillColor: Couleur.primary,
-                                labelStyle: const TextStyle(
-                                  color: Colors.white,
-                                ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: passwordController,
+                          obscureText: !_isPasswordVisible,
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.lock_outline,
+                                color: Couleur.primary),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _isPasswordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Colors.grey,
                               ),
-                              obscureText: true,
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/forgot_password');
-                            },
-                            child: Text(
-                              'Mot de passe oublié ?',
-                              style: TextStyle(
-                                color: Couleur.primary,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 50),
-                          SizedBox(
-                            height: 45,
-                            width: 200,
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                User user = User(
-                                  username: usernameController.text,
-                                  password: passwordController.text,
-                                );
-                                var result = await authController.login(user);
-                                if (result['success']) {
-                                  String token = result['token'];
-                                  String role = result['role'];
-                                  // Stockez le token si nécessaire
-
-                                  // Redirection basée sur le rôle
-                                  if (role == 'Client') {
-                                    Navigator.pushReplacementNamed(
-                                        context, '/homeAchat');
-                                  } else {
-                                    Navigator.pushReplacementNamed(
-                                        context, '/access_denied');
-                                  }
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Échec de la connexion'),
-                                    ),
-                                  );
-                                }
+                              onPressed: () {
+                                setState(() {
+                                  _isPasswordVisible = !_isPasswordVisible;
+                                });
                               },
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Couleur.primary,
-                                  foregroundColor: Colors.white),
-                              child: const Text('Connexion'),
                             ),
+                            labelText: 'Mot de passe',
+                            labelStyle: TextStyle(color: Colors.grey[700]),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey[100],
                           ),
-                          const SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(context, '/clientAjout');
-                                },
-                                child: Text(
-                                  'Créer un compte',
-                                  style: TextStyle(
-                                    color: Couleur.primary,
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
+                        ),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 55,
+                          child: ElevatedButton(
+                            onPressed: _isLoading
+                                ? null
+                                : () async {
+                                    if (usernameController.text.isEmpty ||
+                                        passwordController.text.isEmpty) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                              'Veuillez remplir tous les champs'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                      return;
+                                    }
+
+                                    setState(() => _isLoading = true);
+
+                                    User user = User(
+                                      username: usernameController.text,
+                                      password: passwordController.text,
+                                    );
+
+                                    var result =
+                                        await authController.login(user);
+
+                                    setState(() => _isLoading = false);
+
+                                    if (result['success']) {
+                                      String role = result['role'];
+
+                                      // Redirection basée sur le rôle
+                                      if (role == 'Client') {
+                                        Navigator.pushReplacementNamed(
+                                            context, '/homeAchat');
+                                      } else {
+                                        Navigator.pushReplacementNamed(
+                                            context, '/access_denied');
+                                      }
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                              'Échec de la connexion : ${result['message']}'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Couleur.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                            ],
+                              elevation: 2,
+                            ),
+                            child: _isLoading
+                                ? CircularProgressIndicator(color: Colors.white)
+                                : Text(
+                                    'Se connecter',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Pas encore de compte ? ',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/clientAjout');
+                        },
+                        child: Text(
+                          'Créer un compte',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),

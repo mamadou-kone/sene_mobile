@@ -36,6 +36,8 @@ class MyApp extends StatelessWidget {
             ),
         '/investisseurAjout': (context) => InvestisseurForm(),
         '/loginAchater': (context) => LoginAcheter(),
+        '/welcome': (context) => WelcomePage(),
+        '/clientAjout': (context) => ClientForm(),
       },
     );
   }

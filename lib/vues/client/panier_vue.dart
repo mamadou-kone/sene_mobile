@@ -94,7 +94,7 @@ class _PanierPageState extends State<PanierPage> {
                         // Logique pour procéder au paiement
                       },
                       label: Text(
-                        "Procéder au paiement",
+                        "Passer la commande",
                         style: TextStyle(color: Couleur.primary),
                       ),
                       icon: Icon(Icons.arrow_forward, color: Couleur.primary),
