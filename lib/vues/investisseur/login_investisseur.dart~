@@ -4,12 +4,12 @@ import '../../services/auth_controleur.dart';
 import '../../couleur.dart';
 import '../../models/user.dart';
 
-class LoginInvestisseur extends StatefulWidget {
+class LoginIvestisseur extends StatefulWidget {
   @override
   _LoginInvestisseurState createState() => _LoginInvestisseurState();
 }
 
-class _LoginInvestisseurState extends State<LoginInvestisseur> {
+class _LoginInvestisseurState extends State<LoginIvestisseur> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final AuthController authController = AuthController.instance;

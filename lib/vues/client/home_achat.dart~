@@ -373,9 +373,9 @@ class ProductCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   image: product.image != null
                       ? DecorationImage(
-                          image: MemoryImage(base64Decode(product.image!)),
-                          fit: BoxFit.cover,
-                        )
+                    image: MemoryImage(base64Decode(product.image!)),
+                    fit: BoxFit.cover,
+                  )
                       : null,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
                 ),
@@ -403,7 +403,10 @@ class ProductCard extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: Text(
                         product.nom,
-                        style: Theme.of(context).textTheme.bodyLarge,
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .bodyLarge,
                       ),
                     ),
                     Row(
@@ -412,7 +415,10 @@ class ProductCard extends StatelessWidget {
                         Flexible(
                           child: Text(
                             "${product.prix} FCFA",
-                            style: Theme.of(context).textTheme.bodyLarge,
+                            style: Theme
+                                .of(context)
+                                .textTheme
+                                .bodyLarge,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),

@@ -70,7 +70,7 @@ class _LoginInvestisseurState extends State<LoginIvestisseur> {
                 ),
                 const SizedBox(height: 60),
                 Text(
-                  'Connexion Investisseur',
+                  'Connexion',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 32,
@@ -218,7 +218,7 @@ class _LoginInvestisseurState extends State<LoginIvestisseur> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Pas encore de compte ? ',
+                      'Pas de compte ? ',
                       style: TextStyle(color: Colors.white),
                     ),
                     TextButton(

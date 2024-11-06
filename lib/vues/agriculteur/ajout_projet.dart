@@ -56,6 +56,7 @@ class _ProjetFormState extends State<ProjetForm> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Projet créé avec succès !')),
         );
+        Navigator.of(context).pop();
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erreur : $e')),

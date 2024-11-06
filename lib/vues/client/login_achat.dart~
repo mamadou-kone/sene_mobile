@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../services/auth_controleur.dart';
-import 'home_agriculteur.dart';
 import '../../couleur.dart';
 import '../../models/user.dart';
 
-class LoginVendre extends StatefulWidget {
+class LoginAcheter extends StatefulWidget {
   @override
-  _LoginVendreState createState() => _LoginVendreState();
+  _LoginAcheterState createState() => _LoginAcheterState();
 }
 
-class _LoginVendreState extends State<LoginVendre> {
+class _LoginAcheterState extends State<LoginAcheter> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final AuthController authController = AuthController.instance;
@@ -40,7 +39,7 @@ class _LoginVendreState extends State<LoginVendre> {
             ),
             child: const Icon(Icons.arrow_back, color: Colors.black87),
           ),
-          onPressed: () => Navigator.pushNamed(context, '/welcome'),
+          onPressed: () => Navigator.pop(context),
         ),
         systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
@@ -178,15 +177,9 @@ class _LoginVendreState extends State<LoginVendre> {
                                       String role = result['role'];
 
                                       // Redirection basée sur le rôle
-                                      if (role == 'Agriculteur') {
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                HomeAgriculteur(
-                                                    userInfo: result),
-                                          ),
-                                        );
+                                      if (role == 'Client') {
+                                        Navigator.pushReplacementNamed(
+                                            context, '/homeAchat');
                                       } else {
                                         Navigator.pushReplacementNamed(
                                             context, '/access_denied');
@@ -229,12 +222,12 @@ class _LoginVendreState extends State<LoginVendre> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Pas de compte ? ',
+                        'Pas encore de compte ? ',
                         style: TextStyle(color: Colors.white),
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/agriculteurAjout');
+                          Navigator.pushNamed(context, '/clientAjout');
                         },
                         child: Text(
                           'Créer un compte',

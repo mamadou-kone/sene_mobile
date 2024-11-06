@@ -60,6 +60,7 @@ class _ProduitFormState extends State<ProduitForm> {
             backgroundColor: Couleur.secondary,
           ),
         );
+        Navigator.of(context).pop();
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

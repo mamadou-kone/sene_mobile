@@ -321,7 +321,7 @@ class _HomeInvestisseurState extends State<HomeInvestisseur> {
                               'Montant Nécessaire: ${project.montantNecessaire} FCFA',
                               style: TextStyle(
                                 color: Colors.white70,
-                                fontSize: 14,
+                                fontSize: 10,
                               ),
                             ),
                           ],

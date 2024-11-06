@@ -222,7 +222,7 @@ class _LoginAcheterState extends State<LoginAcheter> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Pas encore de compte ? ',
+                        'Pas de compte ? ',
                         style: TextStyle(color: Colors.white),
                       ),
                       TextButton(
